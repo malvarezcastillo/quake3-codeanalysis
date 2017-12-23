@@ -1,0 +1,21 @@
+
+Practica:
+La idea es hacer un artículo, un documento de 20 y algo (aprox).
+
+1. Entender el proyecto, quiénes son los actores que participan. Cuál es su filosofía de releases (cada cuanto saca una versión), etc.
+2. Qué metodologías parece que se está utilizando en ese proyecto, si hay reuniones, si no, si es curro distribuido o caótico, etc. Herramientas.
+3. Encontrar patrones y antipatrones de arquitectura (primero ver que arquitectura tiene (si tiene componentes, si no, etc), luego buscar patrones (no tienen por qué estar totalmente igual)  y luego indicar antipatrones)
+4. Lo mismo, pero de diseño. Ya implica mirar a nivel de código. Si son proyectos grandes, escoger sólo un trozo.
+5. Temas de calidad: si publican algún tipo de dato sobre porcentajes, alguna medida de las que se vieron o parecidas (temas de rendimiento, cobertura de código, estudio de clases…) qué documentación tienen, que testing hacen y análisis de qué control de calidad integral tiene el proyecto (integridad continua).
+6. Solo posible en proyectos que tengan interfaz. Estudiar hasta qué punto es accesible: se coge orca
+
+
+Apartados de revisión de qué patrones hay, accesibilidade, diseño y demás: se valora cómo tendría que ser algo que no está hecho, aunque sea solo una idea.
+Arquitectura: aquí pensamos que podría haberse utilizado tal.
+O en este sitio no se usa ningún patrón pero se considera que sería adecuado poner un patrón observador. Por ejemplo.
+
+No hacer copy paste. Si tal poner un link de de donde se sacó la información.
+
+Openhub para inspirar.
+ 
+
