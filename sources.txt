@@ -1,5 +1,5 @@
 Codigo: https://github.com/id-Software/Quake-III-Arena
 Wiki: https://es.wikipedia.org/wiki/Quake_III_Arena
 Articulo interesante: http://www.shacknews.com/article/101156/rocket-jump-quake-and-the-golden-age-of-first-person-shooters
-
+Id Tech 3: https://en.wikipedia.org/wiki/Id_Tech_3
 
