@@ -2,4 +2,5 @@ Codigo: https://github.com/id-Software/Quake-III-Arena
 Wiki: https://es.wikipedia.org/wiki/Quake_III_Arena
 Articulo interesante: http://www.shacknews.com/article/101156/rocket-jump-quake-and-the-golden-age-of-first-person-shooters
 Id Tech 3: https://en.wikipedia.org/wiki/Id_Tech_3
-
+GDC Talk: http://www.gamers.org/dEngine/quake3/bwh_gdc99.txt
+Looking at Q3 Source Code: http://element61.blogspot.com.es/2005/08/looking-at-quake-3-source-part-1.html
