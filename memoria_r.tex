@@ -10,6 +10,8 @@
 \usepackage[T1]{fontenc}
 \usepackage{times}
 
+\usepackage{verbatim} % comentarios
+
 \usepackage{color}
 \definecolor{gray97}{gray}{.97}
 \definecolor{gray75}{gray}{.75}
@@ -189,15 +191,39 @@ void main() // Pong
 		
 		En el game-loop se han de procesar todos los eventos recibidos en la anterior iteración y distribuirlos a los subsistemas pertinentes para que los procesen, además, también se encarga de notificar a los subsistemas de en qué instante se encuentra la ejecución del programa. Los eventos recibidos no siempre tienen por qué ser procesados inmediatamente, por lo que cada subsistema debe de tener capacidad para almacenar eventos y en base a la información del bucle principal, ser consciente del instante en el que ha de procesar cada uno de los eventos. 
 		
-		%  Antipatrón %
-		
-		
-		En el caso concreto de estudio, Q3, implementa desde sus primeras versiones un motor completamente basado en un modelo de eventos, siendo estas primeras versiones las que revolucionaron
+		La implementación de este modelo puede ser completa, separando todos los subsistemas, o usarse sólo para ciertos subsistemas como suele ocurrir en motores en los que se implementó a posteriori y en los que era muy difícil desacoplar el subsistema de rendering de otros que dependían de él como: físicas, audio e IA.
 	
+	    A lo largo de este trabajo se comentarán patrones apoyados en esta arquitectura basada en eventos.
+		
 	\end{itemize}	
 	
 	
-		
+	El motor \textit{id tech 3} y sus antecesores utilizan una arquitectura completamente basada en eventos que desacopla los ciclos de vida de los diferentes subsistemas del motor. Una buena aproximación para entender la arquitectura es representar como una caja negra el sistema (\textit{Quake3.exe}). Como se puede ver en la Figura \begin{comment}\ref{fig:architectureblackbox} (1!!!!!)\end{comment} 
+	1, el software sólo recibe entradas de red y teclado/ratón, y produce salidas de red y de frames.
+	
+	
+	\begin{center}
+		\begin{figure}[h]
+			\includegraphics[width=1\textwidth]{images/q3_architecture_blackbox}
+			\label{fig:architectureblackbox}
+			\caption{Q3 architecture blackbox}
+		\end{figure}
+	\end{center}
+
+	Dentro del sistema se identifican 6 módulos: lógica de juego (\textit{quake3.exe}), rendering (\textit{renderer.lib}), IA (\textit{bot.lib}), game (\textit{game}), cgame (\textit{cgame}) e interfaz de usuario (\textit{q3\_ui}), representados en la Figura 2 \begin{comment}\ref{fig:architecture}\end{comment} 
+
+		\begin{center}
+			\begin{figure}[h]
+				\includegraphics[width=1\textwidth]{images/q3_architecture}
+				\label{fig:architecture}
+				\caption{Q3 architecture}
+			\end{figure}
+		\end{center}
+	
+	
+	%  Traducir texto bajoimagen http://fabiensanglard.net/quake3/index.php %
+	
+	\newpage
 	\section{Diseño de Software}
 	design patterns and anti-patterns\\
 	
