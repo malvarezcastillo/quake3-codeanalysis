@@ -7,6 +7,53 @@
 \renewcommand\thesection{\arabic{section}}
 
 
+\usepackage[T1]{fontenc}
+\usepackage{times}
+
+\usepackage{color}
+\definecolor{gray97}{gray}{.97}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+
+\usepackage{listings}
+\lstset{ frame=Ltb,
+	framerule=0pt,
+	aboveskip=0.5cm,
+	framextopmargin=3pt,
+	framexbottommargin=3pt,
+	framexleftmargin=0.4cm,
+	framesep=0pt,
+	rulesep=.4pt,
+	backgroundcolor=\color{gray97},
+	rulesepcolor=\color{black},
+	%
+	stringstyle=\ttfamily,
+	showstringspaces = false,
+	basicstyle=\small\ttfamily,
+	commentstyle=\color{gray45},
+	keywordstyle=\bfseries,
+	%
+	numbers=left,
+	numbersep=15pt,
+	numberstyle=\tiny,
+	numberfirstline = false,
+	breaklines=true,
+}
+
+% minimizar fragmentado de listados
+\lstnewenvironment{listing}[1][]
+{\lstset{#1}\pagebreak[0]}{\pagebreak[0]}
+
+\lstdefinestyle{consola}
+{basicstyle=\scriptsize\bf\ttfamily,
+	backgroundcolor=\color{gray75},
+}
+
+\lstdefinestyle{C}
+{language=C,
+}
+
+
 
 \begin{document}
 	
@@ -58,6 +105,98 @@
 	
 	\section{Arquitectura de Software: Patrones y Antipatrones}
 	patterns and anti-patterns\\
+	La gran mayoría de aplicaciones están basados en sistemas 2D que solo requieren actualizar partes de la vista en cada momento. Cuando nos referimos a aplicaciones 3D estas arquitecturas clásicas no son compatibles, ya que para dar sensación de fluidez y continuidad el software debe generar una serie de frames cada segundo de manera constante. Incluso cuando el software no está haciendo ningún input, se produce el output de los frames. La arquitectura común de todos los aplicativos 3D es el render-loop:
+	
+	% introducir snippet de render-loop %
+
+	
+	\begin{lstlisting}[style=C, numbers=none]
+while (!quit)
+{
+	// Update the camera transform based on interactive
+	// inputs or by following a predefined path.
+	updateCamera();
+	// Update positions, orientations and any other
+	// relevant visual state of any dynamic elements
+	// in the scene.
+	updateSceneElements();
+	// Render a still frame into an off-screen frame
+	// buffer known as the "back buffer".
+	renderScene();
+	// Swap the back buffer with the front buffer, making
+	// the most recently rendered image visible
+	// on-screen. (Or, in windowed mode, copy (blit) the
+	// back buffer's contents to the front buffer.
+	swapBuffers();
+}
+\end{lstlisting}
+	
+	
+%	\begin{listing}[style=consola, numbers=none]
+	
+
+			
+	
+	En un videojuego, además de hacer el renderizado, necesitamos manejar la interactividad con el usuario. %, ya que el jugador afecta a%
+	Para ello se introduce el concepto del game-loop, un bucle que además de ejecutar las tareas de renderizado contienen toda la lógica de control del juego. Un ejemplo básico de un game-loop sería el caso del videojuego clásico Pong:
+	
+	% introducir snippet de pong y texto %
+	
+		\begin{lstlisting}[style=C, numbers=none]
+void main() // Pong
+{
+  initGame();
+	
+  while (true) // game loop
+  {
+    readHumanInterfaceDevices();
+    if (quitButtonPressed())
+    {
+      break; // exit the game loop
+    }
+    movePaddles();
+    moveBall();
+    collideAndBounceBall();
+    if (ballImpactedSide(LEFT_PLAYER))
+    {
+      incremenentScore(RIGHT_PLAYER);
+      resetBall();
+    }
+    else if (ballImpactedSide(RIGHT_PLAYER))
+    {
+      incrementScore(LEFT_PLAYER);
+      resetBall();
+    }
+  renderPlayfield();
+  }
+}
+	\end{lstlisting}
+	
+	Esta aproximación de game-loop es demasiado básica y limitada para juegos modernos. Aún así, la arquitectura de dichos juegos se basa un game-loop que contiene a su vez una serie de bucles de cada subsistema del motor, pudiendo correr cada uno de esos bucles a un frecuencia distinta del resto. Por ejemplo: en un segundo queremos renderizar 60 fotogramas, pero sólo tenemos que recibir paquetes de red 30 veces por segundo. 
+	
+	Destacamos dos aproximaciones muy frecuentes en el desarrollo de motores de videojuegos:
+	
+	\begin{itemize}
+		\item Callback-Driven frameworks. La mayoría de los subsistemas de motores y de paquetes middleware de videojuegos están estructurados como librerías. Para la implementación del game-loop usamos las llamadas a esos subsistemas a partir de sus API's para agilizar la lógica de cada subsistema en cada iteración. Por ejemplo: si estuviéramos implementando el flappy bird utilizando este estilo, una iteración del bucle podía parecerse a algo similar a:
+		
+		% snippet de while(true) en el que la primera instruccion sea calcular posición pájaro, segundo calcular colisión pájaro (si colisionó fin de partida, se bajan las highscores), si no colisionó sigue el bucle y se debe calcular si el usuario ha hecho input (si ha tocado la pantalla o no) si está tocada se cambian las variables de movimiento del pájaro y si no no se hace nada. Se hace una llamada al api de físicas para que calcule según el momentum del pájaro donde va a estar en la siguiente posición.  Reproducir el audio correspondiente. Por último se pinta el frame, llamando a la librería de renderizado (librería renderizado android, totalmente abstraídos de ella).  %
+		
+		El programador, en este ejemplo, sólo ha tenido que diseñar la lógica de cómo funciona el juego y ha dejado en manos de los subsistemas la ejecución de bajo nivel de los resultados de la interacción del usuario. Los subsistemas utilizados en este caso, y que el programador no está obligado a conocer más que sus API's, serían las implementaciones de networking, de audio, de gráficos, de input y de físicas. La mayoría de estas librerías son independientes e intercambiables entre sí, a las que se accede utilizando un patrón facade.
+		
+		Si en el futuro el programador decidiera programar este juego para iOS, este código tendría que adaptar las llamadas de API a las librerías disponibles en iOS, quizá utilizando el patrón adaptador para evitar cambiar la lógica principal y tipos de datos de su sistema.	
+		
+		\item Event-Based Updating. En este estilo de implementación todos los subsistemas son capaces de enviar y recibir eventos. Estos eventos son similares a los que se usan en los patrones de interfaces gráficas como MVC. 
+		
+		En el game-loop se han de procesar todos los eventos recibidos en la anterior iteración y distribuirlos a los subsistemas pertinentes para que los procesen, además, también se encarga de notificar a los subsistemas de en qué instante se encuentra la ejecución del programa. Los eventos recibidos no siempre tienen por qué ser procesados inmediatamente, por lo que cada subsistema debe de tener capacidad para almacenar eventos y en base a la información del bucle principal, ser consciente del instante en el que ha de procesar cada uno de los eventos. 
+		
+		%  Antipatrón %
+		
+		
+		En el caso concreto de estudio, Q3, implementa desde sus primeras versiones un motor completamente basado en un modelo de eventos, siendo estas primeras versiones las que revolucionaron
+	
+	\end{itemize}	
+	
+	
 		
 	\section{Diseño de Software}
 	design patterns and anti-patterns\\
