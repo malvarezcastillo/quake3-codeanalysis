@@ -9,6 +9,7 @@
 
 \usepackage[T1]{fontenc}
 \usepackage{times}
+\usepackage[toc,page]{appendix}
 
 \usepackage{verbatim} % comentarios
 
@@ -109,14 +110,11 @@
 	patterns and anti-patterns\\
 	La gran mayoría de aplicaciones están basados en sistemas 2D que solo requieren actualizar partes de la vista en cada momento. Cuando nos referimos a aplicaciones 3D estas arquitecturas clásicas no son compatibles, ya que para dar sensación de fluidez y continuidad el software debe generar una serie de frames cada segundo de manera constante. Incluso cuando el software no está haciendo ningún input, se produce el output de los frames. La arquitectura común de todos los aplicativos 3D es el render-loop:
 	
-	% introducir snippet de render-loop %
-
-	
 	\begin{lstlisting}[style=C, numbers=none]
 while (!quit)
 {
 	// Update the camera transform based on interactive
-	// inputs or by following a predefined path.
+	// inputs (If real time) or by following a predefined path.
 	updateCamera();
 	// Update positions, orientations and any other
 	// relevant visual state of any dynamic elements
@@ -134,43 +132,40 @@ while (!quit)
 \end{lstlisting}
 	
 	
-%	\begin{listing}[style=consola, numbers=none]
-	
 
-			
 	
-	En un videojuego, además de hacer el renderizado, necesitamos manejar la interactividad con el usuario. %, ya que el jugador afecta a%
+	En un videojuego, además de hacer el renderizado, necesitamos tener en cuenta la interactividad con el usuario, que en este caso afectará a muchos más elementos que el movimiento de la cámara. %, ya que el jugador afecta a%
 	Para ello se introduce el concepto del game-loop, un bucle que además de ejecutar las tareas de renderizado contienen toda la lógica de control del juego. Un ejemplo básico de un game-loop sería el caso del videojuego clásico Pong:
 	
-	% introducir snippet de pong y texto %
+
 	
 		\begin{lstlisting}[style=C, numbers=none]
 void main() // Pong
 {
-  initGame();
-	
-  while (true) // game loop
-  {
-    readHumanInterfaceDevices();
-    if (quitButtonPressed())
-    {
-      break; // exit the game loop
-    }
-    movePaddles();
-    moveBall();
-    collideAndBounceBall();
-    if (ballImpactedSide(LEFT_PLAYER))
-    {
-      incremenentScore(RIGHT_PLAYER);
-      resetBall();
-    }
-    else if (ballImpactedSide(RIGHT_PLAYER))
-    {
-      incrementScore(LEFT_PLAYER);
-      resetBall();
-    }
-  renderPlayfield();
-  }
+	initGame();
+		
+	while (true) // game loop
+	{
+	readHumanInterfaceDevices();
+	if (quitButtonPressed())
+	{
+		break; // exit the game loop
+	}
+	movePaddles();
+	moveBall();
+	collideAndBounceBall();
+	if (ballImpactedSide(LEFT_PLAYER))
+	{
+		incremenentScore(RIGHT_PLAYER);
+		resetBall();
+	}
+	else if (ballImpactedSide(RIGHT_PLAYER))
+	{
+		incrementScore(LEFT_PLAYER);
+		resetBall();
+	}
+	renderPlayfield();
+	}
 }
 	\end{lstlisting}
 	
@@ -181,7 +176,32 @@ void main() // Pong
 	\begin{itemize}
 		\item Callback-Driven frameworks. La mayoría de los subsistemas de motores y de paquetes middleware de videojuegos están estructurados como librerías. Para la implementación del game-loop usamos las llamadas a esos subsistemas a partir de sus API's para agilizar la lógica de cada subsistema en cada iteración. Por ejemplo: si estuviéramos implementando el flappy bird utilizando este estilo, una iteración del bucle podía parecerse a algo similar a:
 		
-		% snippet de while(true) en el que la primera instruccion sea calcular posición pájaro, segundo calcular colisión pájaro (si colisionó fin de partida, se bajan las highscores), si no colisionó sigue el bucle y se debe calcular si el usuario ha hecho input (si ha tocado la pantalla o no) si está tocada se cambian las variables de movimiento del pájaro y si no no se hace nada. Se hace una llamada al api de físicas para que calcule según el momentum del pájaro donde va a estar en la siguiente posición.  Reproducir el audio correspondiente. Por último se pinta el frame, llamando a la librería de renderizado (librería renderizado android, totalmente abstraídos de ella).  %
+		\begin{lstlisting}[style=C, numbers=none]
+void main() // Flappy Bird
+{
+	GameLogic.initGame();
+	Audio.playBackgroundMusic();
+	while (true) // game loop
+	{
+		Input.readHumanInterfaceDevices();
+		if (input.screeenTouched())
+		{
+			Physics.increaseBirdUpMomentum(); // exit the game loop
+		}
+		GameLogic.moveBird();
+		GameLogic.scrollScreen();
+		if (Physics.birdCollision() //If the bird collides with ground or pipe
+		{
+			break; //Exit game loop
+		}
+		Audio.playSoundEffects();
+		Graphics.renderScreen();
+	}
+	Networking.loadHighScores(); //
+	GameLogic.playGameOverScreen();
+}
+		\end{lstlisting}
+		
 		
 		El programador, en este ejemplo, sólo ha tenido que diseñar la lógica de cómo funciona el juego y ha dejado en manos de los subsistemas la ejecución de bajo nivel de los resultados de la interacción del usuario. Los subsistemas utilizados en este caso, y que el programador no está obligado a conocer más que sus API's, serían las implementaciones de networking, de audio, de gráficos, de input y de físicas. La mayoría de estas librerías son independientes e intercambiables entre sí, a las que se accede utilizando un patrón facade.
 		
@@ -196,7 +216,8 @@ void main() // Pong
 	    A lo largo de este trabajo se comentarán patrones apoyados en esta arquitectura basada en eventos.
 		
 	\end{itemize}	
-	
+
+%INTRODUCRIR BIBLIOGRAFIA LIBRO%	
 	
 	El motor \textit{id tech 3} y sus antecesores utilizan una arquitectura completamente basada en eventos que desacopla los ciclos de vida de los diferentes subsistemas del motor. Una buena aproximación para entender la arquitectura es representar como una caja negra el sistema (\textit{Quake3.exe}). Como se puede ver en la Figura \begin{comment}\ref{fig:architectureblackbox} (1!!!!!)\end{comment} 
 	1, el software sólo recibe entradas de red y teclado/ratón, y produce salidas de red y de frames.
@@ -220,8 +241,104 @@ void main() // Pong
 			\end{figure}
 		\end{center}
 	
+	En esta arquitectura destacamos dos decisiones de diseño muy importantes:
 	
-	%  Traducir texto bajoimagen http://fabiensanglard.net/quake3/index.php %
+	\subsubsection{Bitácora de inputs para facilitar las pruebas}
+	
+	Cada uno de los inputs recibidos (Teclado, mensaje win32, ratón, socket UDP) es convertido a \textit{event\_t} y encolado en una cola de eventos (\textit{sysEvent\_t eventQue[256]}). Con esta aproximación se puede mantener una bitácora de estos inputs que, junto con otros factores también almacenados, permiten ser reproducidos en orden para recrear bugs de manera consistente.\\
+	 %BUSCAR JOHN CARMACK .plan DE OCT 14 1998 COMO CITA% 
+	
+	En la figura X identificamos dentro de la parte \textit{Common} el administrador de inputs, la cola de eventos y el \textit{event journal} mencionado.
+	
+	\subsubsection{Separación explícita de cliente y servidor}
+	
+	Durante el desarrollo de \textit{id tech 3} se decidió tomar la decisión de implementar una arquitectura cliente-servidor en la que los roles y subsistemas de cada uno de los dos fueran significativamente distintos. Hasta entonces los clientes y servidores contenían el mismo código pero debían desempeñar roles distintos.\\
+	
+	En Q3 el servidor es el responsable de mantener el estado de la partida, determinar información de la partida necesitan los clientes y propagarla por la red. Podemos ver en la imagen que \textit{bot.lib} está contenido únicamente dentro de la parte servidora, ya que es también la encargada de proveer la lógica e inputs de los jugadores controlados por la IA.\\
+	
+	El cliente es responsable de predecir dónde están los objetos en cada instante, incluyendo los elementos afectados por la red utilizando una técnica llamada \textit{lag compensation}, y de renderizar la vista para el usuario \,---\, De nuevo, en la figura X vemos como renderer.lib está contenido en la parte cliente.	\cite{architecture}\\
+	
+	\subsubsection{Eventos desde el punto de vista del código}
+	
+	Para ilustrar la producción/consumición de eventos podemos estudiar el bucle principal (\textit{main}) del código de Q3. Vemos un ejemplo resumido (Código omitido y desenroscado):
+	
+	\begin{lstlisting}[style=C, numbers=none]
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+	Com_Init
+	
+	NET_Init
+	
+	while( 1 )
+	{
+		// Codigo de Common 
+		IN_Frame()  // Inyecta los inputs de Win32 joystick y raton en la cola unificada de eventos como event_t.
+		{
+			IN_JoyMove                                    
+			IN_ActivateMouse
+			IN_MouseMove
+		}
+		
+		Com_Frame
+		{
+			// Codigo de Common 
+			Com_EventLoop // Envia mensajes win32, paquetes UDP del socket y comandos de la consola a la cola (sysEvent_t eventQue[256]) 
+			Cbuf_Execute
+			
+			// Codigo de Servidor (SV)
+			SV_Frame
+			{
+				SV_BotFrame // Llamada a bot.lib para avanzar su logica
+				VM_Call( gvm, GAME_RUN_FRAME, svs.time ) // Llamada a la Game Virtual Machine para procesar la logica de juego
+				
+				SV_CheckTimeouts
+				SV_SendClientMessages  // Enviar el snapshot o delta snapshot (diferencia entre el snapshot anterior y el actual) a los clientes conectados
+			} 
+		
+			// Codigo de Common aqui
+			Com_EventLoop
+			Cbuf_Execute
+			
+			// Codigo de cliente (CL)
+			CL_Frame
+			{
+				CL_SendCmd // Eenviar los comandos al servidor usando la cola de eventos.
+				
+				SCR_UpdateScreen
+				VM_Call( cgvm, CG_DRAW_ACTIVE_FRAME); // Enviar mensajes a la Client Virtual Machine (encargada de hacer las predicciones).
+				or
+				VM_Call( uivm, UI_DRAW_CONNECT_SCREEN); // Envia un mensaje a la UI Virtual Machine si esta el menu abierto
+				
+				S_Update // Actualizar los buffers de sonido
+				}
+			}	
+	}
+}
+	\end{lstlisting}
+
+    En este código podemos observar la potencia del patrón basado en máquinas virtuales (que comentaremos en detalle en las siguientes secciones), que permite obviar las llamadas de renderizado en el bucle principal del juego. Lo único que necesita hacer este bucle es enviar un mensaje (evento) a la máquina virtual del cliente (\textit{CG\_DRAW\_ACTIVE\_FRAME}) indicándole que es necesario realizar un refresco (Cargar el siguiente fotograma).\\
+    
+    Esta máquina virtual realiza los trabajos de culling y predicción antes de llamar a las librerías de OpenGL usando una llamda del sistema Q3 (\textit{CG\_R\_RENDERSCENE}). Cuando Quake.exe recibe esta llamada es cuando realmente se llama a la función de renderizado de la escena (\textit{RE\_RenderScene}). \cite{unrolled_loop}\\   
+    
+    En la figura X podemos visualizar esta explicación. En lugar de tener todas las llamadas acopladas y dependientes del mismo ciclo de vida, aprovechamos la arquitectura de mensajes para que cada componente realice su trabajo cuando esté listo para procesarlo. Además, esto implica que Quake3.exe no tiene necesidad de saber qué trabajos va a realizar la \textit{Client Virtual Machine} antes de hacer el lanzar el mensaje para hacer el render de la escena.\\
+    
+    
+    %CREAR DIAGRAMA Y PONER AQUI
+%     OpenGL                Quake3.exe                                 Client Virtual machine
+%    --------               ----------                                ----------------------
+%    |                        |                                                |
+%    |                        |                                                |
+%    |                   VM_Call(CG_DRAW_ACTIVE_FRAME)----------------->  CG_DrawActiveFrame
+%    |                        |                                           CG_DrawActive
+%    |                        |                                           trap_R_RenderScene
+%    |                        |                                           syscall( CG_R_RENDERSCENE, fd )
+%    |                   RE_RenderScene <--------------------------------------|
+%    |                        |                                                |
+%    | <----------------------|                                                |
+%    |                        |                                                |
+    
+	
+	
 	
 	\newpage
 	\section{Diseño de Software}
@@ -237,7 +354,9 @@ void main() // Pong
 	
 	
 	
+	\begin{appendices}
 	
+	\end{appendices}
 	
 	\begin{thebibliography}{9}
 		
@@ -246,9 +365,12 @@ void main() // Pong
 		\bibitem{idtech3} id tech 3 \emph{Giant Bomb}. URL: \url{https://www.giantbomb.com/id-tech-3/3015-1918/}\\
 		\bibitem{sourcecode} Quake III Arena Source Code \emph{Github}. URL: \url{https://github.com/id-Software/Quake-III-Arena}\\
 		\bibitem{ioquake3} ioquake3 \emph{ioquake3}. URL: \url{https://ioquake3.org/}
-		
+		\bibitem{architecture} Quake 3 Source Code Review. \emph{Fabien Sanglard}. URL: \url{http://fabiensanglard.net/quake3/index.php}
+        \bibitem{unrolled_loop} Quake 3 Loop Unrolled. \emph{Fabien Sanglard}. URL: \url{http://fabiensanglard.net/quake3/q3_loop_unrolled.txt}
 		
 	\end{thebibliography}
+
+
 	
 	
 \end{document}
