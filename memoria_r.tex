@@ -245,8 +245,7 @@ void main() // Flappy Bird
 	
 	\subsubsection{Bitácora de inputs para facilitar las pruebas}
 	
-	Cada uno de los inputs recibidos (Teclado, mensaje win32, ratón, socket UDP) es convertido a \textit{event\_t} y encolado en una cola de eventos (\textit{sysEvent\_t eventQue[256]}). Con esta aproximación se puede mantener una bitácora de estos inputs que, junto con otros factores también almacenados, permiten ser reproducidos en orden para recrear bugs de manera consistente.\\
-	 %BUSCAR JOHN CARMACK .plan DE OCT 14 1998 COMO CITA% 
+	Cada uno de los inputs recibidos (Teclado, mensaje win32, ratón, socket UDP) es convertido a \textit{event\_t} y encolado en una cola de eventos (\textit{sysEvent\_t eventQue[256]}). Con esta aproximación se puede mantener una bitácora de estos inputs que, junto con otros factores también almacenados, permiten ser reproducidos en orden para recrear bugs de manera consistente. \cite{johncplan}\\
 	
 	En la figura X identificamos dentro de la parte \textit{Common} el administrador de inputs, la cola de eventos y el \textit{event journal} mencionado.
 	
@@ -365,6 +364,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 		\bibitem{idtech3} id tech 3 \emph{Giant Bomb}. URL: \url{https://www.giantbomb.com/id-tech-3/3015-1918/}\\
 		\bibitem{sourcecode} Quake III Arena Source Code \emph{Github}. URL: \url{https://github.com/id-Software/Quake-III-Arena}\\
 		\bibitem{ioquake3} ioquake3 \emph{ioquake3}. URL: \url{https://ioquake3.org/}
+        \bibitem{johncplan} John Carmack's 14 Oct 1998 .plan (Archived from original). \emph{John Carmack}. URL: \url{https://raw.githubusercontent.com/ESWAT/john-carmack-plan-archive/master/by_day/johnc_plan_19981014.txt}
 		\bibitem{architecture} Quake 3 Source Code Review. \emph{Fabien Sanglard}. URL: \url{http://fabiensanglard.net/quake3/index.php}
         \bibitem{unrolled_loop} Quake 3 Loop Unrolled. \emph{Fabien Sanglard}. URL: \url{http://fabiensanglard.net/quake3/q3_loop_unrolled.txt}
 		
