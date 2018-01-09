@@ -317,7 +317,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 
     En este código podemos observar la potencia del patrón basado en máquinas virtuales (que comentaremos en detalle en las siguientes secciones), que permite obviar las llamadas de renderizado en el bucle principal del juego. Lo único que necesita hacer este bucle es enviar un mensaje (evento) a la máquina virtual del cliente (\textit{CG\_DRAW\_ACTIVE\_FRAME}) indicándole que es necesario realizar un refresco (Cargar el siguiente fotograma).\\
     
-    Esta máquina virtual realiza los trabajos de culling y predicción antes de llamar a las librerías de OpenGL usando una llamda del sistema Q3 (\textit{CG\_R\_RENDERSCENE}). Cuando Quake.exe recibe esta llamada es cuando realmente se llama a la función de renderizado de la escena (\textit{RE\_RenderScene}). \cite{unrolled_loop}\\   
+    Esta máquina virtual realiza los trabajos de culling y predicción antes de llamar a las librerías de OpenGL usando una llamda del sistema Q3 (\textit{CG\_R\_RENDERSCENE}). Cuando Quake.exe recibe esta llamada es cuando realmente se llama a la función de renderizado de la escena (\textit{RE\_RenderScene}).\cite{unrolled_loop_source}\cite{unrolled_loop}\\   
     
     En la figura X podemos visualizar esta explicación. En lugar de tener todas las llamadas acopladas y dependientes del mismo ciclo de vida, aprovechamos la arquitectura de mensajes para que cada componente realice su trabajo cuando esté listo para procesarlo. Además, esto implica que Quake3.exe no tiene necesidad de saber qué trabajos va a realizar la \textit{Client Virtual Machine} antes de hacer el lanzar el mensaje para hacer el render de la escena.\\
     
@@ -366,6 +366,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 		\bibitem{ioquake3} ioquake3 \emph{ioquake3}. URL: \url{https://ioquake3.org/}
         \bibitem{johncplan} John Carmack's 14 Oct 1998 .plan (Archived from original). \emph{John Carmack}. URL: \url{https://raw.githubusercontent.com/ESWAT/john-carmack-plan-archive/master/by_day/johnc_plan_19981014.txt}
 		\bibitem{architecture} Quake 3 Source Code Review. \emph{Fabien Sanglard}. URL: \url{http://fabiensanglard.net/quake3/index.php}
+		\bibitem{unrolled_loop_source} Quake 3 Main. \emph{id software}. URL: \url{https://raw.githubusercontent.com/id-Software/Quake-III-Arena/dbe4ddb10315479fc00086f08e25d968b4b43c49/code/win32/win_main.c}
         \bibitem{unrolled_loop} Quake 3 Loop Unrolled. \emph{Fabien Sanglard}. URL: \url{http://fabiensanglard.net/quake3/q3_loop_unrolled.txt}
 		
 	\end{thebibliography}
