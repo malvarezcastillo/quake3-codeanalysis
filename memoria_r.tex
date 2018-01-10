@@ -332,24 +332,59 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
     En la figura X se puede visualizar esta explicación. En lugar de tener todas las llamadas acopladas y dependientes del mismo ciclo de vida, se aprovecha la arquitectura de mensajes para que cada componente realice su trabajo cuando esté listo para procesarlo. Además, esto implica que Quake3.exe no tiene necesidad de saber qué trabajos va a realizar la \textit{Client Virtual Machine} antes de lanzar el mensaje para hacer el render de la escena.\\
     
     
-
+    \begin{center}
+    	\begin{figure}[h]
+    		\includegraphics[width=1\textwidth]{images/diagrama}
+    		\label{fig:diagrama}
+    		\caption{Q3 architecture blackbox}
+    	\end{figure}
+    \end{center}
     
-	
+
 	
 	
 	\newpage
 	\section{Diseño de Software}
 	design patterns and anti-patterns\\
 	
+	Todo el diseño de el software que se está analizando se ha organizado en base a una arquitectura compuesta por cuatro grandes bloques que estructurarían, simplificarían y flexibilizarían el proceso de diseño: UI, IA, Motor físico y motor gráfico (??????).
+	(http://diposit.ub.edu/dspace/bitstream/2445/67212/2/memoria.pdf)\\
+	
+	El software de Quake III Arena está considerado un buen ejemplo de programación estructurada, que gira en torno a una adecuada definición de funciones y a un equilibrio respecto a la complejidad de las mismas. En la versión que se está analizando en esta memoria, se puede observar que el código está bien diseñado y estructurado, pudiendo tener una visión global de su estructura.\\
+	
+	El desarrollo ha sido realizado íntegramente utilizando el lenguaje C \,---\,es decir, un lenguaje no orientado a objetos \,---\, por lo que no se pueden encontrar patrones de diseño software tal y como se está acostumbrado a encontrarlos. Pero esto no implica que no puedan estar presentes a lo largo del código. Se ha intentado localizar algunos conocidos como el \textit{observador}, \textit{estado} y \textit{estrategia}, y a continuación se expondrán algunos de ellos:\\
+	
+	
+	\textbf{Estrategia:}
+	% No estoy ni un 10% segura, pero a ver qué opinas tú, martín
+	\begin{lstlisting}[style=C, numbers=none]
+static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle) {
+	
+	\end{lstlisting}
+	
+	En la interfaz de usuario existe la función llamada \textit{UI\_OwnerDraw} (cuya cabecera se puede observar en el código anterior) que parece indicar que existe un patrón estrategia. La diferente estrategia, en este caso, se elige mediante el parámetro \textit{int ownerDraw}\\, que recorrerá un \textit{case} dentro de la función principal e indicará a cuál tiene que llamar.\\
+	
+	% Intentar analizar a ver si se encuentra algún observador. A lo mejor para finalizar la partida si te matan o algo. Hay que mirar.
+	
+	
+	
+	A pesar de que es un código que llama la atención por su buena estructura, también se debe de exponer que contiene algunos antipatrones en él.\\
+	
+	Por ejemplo:\\
+
+
+	
+
+	
 	\section{Calidad del Software}
-    El software se distribuyó en una única release, ofreciendo el código fuente del motor y unas breves líneas de cómo compilar para Windows, Linux y Mac. No se proporciona más documentación que este breve README, aunque la gente que ha trabajado con este código liberado dice no haber tenido problema para familiarizarse con el código usando los comentarios y la claridad del estilo utilizado, con ficheros y clases bien diferenciadas.\\
+    El software se distribuyó en una única release, ofreciendo el código fuente del motor y unas breves líneas de cómo compilar para Windows, Linux y Mac. No se proporciona más documentación que este breve \textit{README}, aunque la gente que ha trabajado con este código liberado dice no haber tenido problema para familiarizarse con el código usando los comentarios y la claridad del estilo utilizado, con ficheros y clases bien diferenciadas.\\
     
-    No se acompaña el código, tampoco, con ningún tipo de test, por lo que cualquier modificación propia podría introducir cambios y regresiones en las features ya implementadas sin ningún tipo de manera de comprobarlo de manera automática. La filosofía en \textit{id software} era basada en que el testing era una tarea del programador sobre su propio código, además de mediante playtesting diario para comprobar la integración. Es difícil automatizar las tareas de testing para un videojuego online, actualmente se sigue empleando el testing via playtesting entre jugadores reales, pero sí se echan en falta \textit{unit tests} sobre módulos en los que podría encajar hacerlos.\\
+    No se acompaña el código, tampoco, con ningún tipo de test, por lo que cualquier modificación propia podría introducir cambios y regresiones en las features ya implementadas sin ningún tipo de manera de comprobarlo de manera automática. La filosofía en \textit{id software} estaba basada en que el testing era una tarea más del programador sobre su propio código, además de realizarlo mediante playtesting diario para comprobar la integración. Automatizar las tareas de testing para un videojuego online es difícil, de manera que actualmente se sigue empleando el testing via playtesting entre jugadores reales, pero sí se echan en falta \textit{unit tests} sobre módulos en los que podría encajar hacerlos.\\
     
-    Respecto al performance en Q3 se incluyen varias herramientas in-game para medir todo tipo de parámetros relacionados. Podemos distinguir entre dos grandes grupos, las mediciones sobre el performance gráfico (Como los fotogramas por segundo y \textit{frame time}) y las mediciones sobre la red, accesibles mediante la variable \textit{CG\_LAGOMETER}. Con el Lag-o-Meter podemos obtener gráficas sobre el estado de la conexión entre el cliente y el servidor, de esta manera podrían observarse cuellos de botella o problemas en los protocolos de red implementados.
+    Respecto al performance en Q3, se incluyen varias herramientas\textit{ in-game }para medir todo tipo de parámetros relacionados. Se pueden distinguir entre dos grandes grupos: las mediciones sobre el performance gráfico (como los fotogramas por segundo y \textit{frame time}) y las mediciones sobre la red, accesibles mediante la variable \textit{CG\_LAGOMETER}. Con el Lag-o-Meter se pueden obtener gráficas sobre el estado de la conexión entre el cliente y el servidor, de esta manera podrían observarse cuellos de botella o problemas en los protocolos de red implementados.
 	
 	\section{Estado de la accesibilidad en el proyecto}
-    Al ser un juego de acción rápida contra oponentes por Internet no existen ningún tipo de consideración para la accesibilidad de ningún tipo. Aún así, existen algunas features que se podrían haber incluído para mejorar la accesibilidad del software como: Paletas de colores para daltónicos, ajustes de brillo y contraste extremos para gente con muy mala vista e indicadores visuales y subtítulos para sordos.
+    Al ser un juego de acción rápida contra oponentes por Internet no existe ningún tipo de consideración para la accesibilidad de ningún tipo. Aún así, existen algunas features que se podrían haber incluído para mejorar la accesibilidad del software como: paletas de colores,  ajustes de brillo y contraste extremos para usuarios con problemas de visión, e indicadores visuales y subtítulos para usuarios con problemas auditivos.
 	
 	\section{Conclusiones}
 	TODO\\
