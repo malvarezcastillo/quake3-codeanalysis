@@ -90,15 +90,15 @@
 	
 	
 	\section{Introducción}
-	Quake III Arena, a partir de ahora referido como Q3, es un videojuego de disparos en primera persona (FPS) que fue lanzado en el año 1999 por \textit{id Software}. Este anticipado lanzamiento, al igual que el resto de juegos de \textit{id}, revolucionó el género de los FPS, tanto a nivel de diseño \,---\,el cual no se comentará en este documento excepto donde sea relevante\,---\,, como a nivel de tecnologías e implementación de motor gráfico de tiempo real en el ámbito de los videojuegos. \cite{quake3}\\
+	Quake III Arena, a partir de ahora referido como \textbf{Q3}, es un videojuego de disparos en primera persona (\textit{FPS}) que fue lanzado en el año 1999 por \textit{id Software}. Este anticipado lanzamiento, al igual que el resto de juegos de \textit{id}, revolucionó el género de los FPS, tanto a nivel de diseño \,---\,el cual no se comentará en este documento, excepto donde sea relevante\,---\,, como a nivel de tecnologías e implementación de motor gráfico de tiempo real en el ámbito de los videojuegos. \cite{quake3}\\
 	
-	El nuevo motor que se desarrolló para crear Q3 fue bautizado como \textit{id tech 3}, cuando nos refiramos a Q3 realmente nos estaremos refiriendo a la versión de \textit{id tech 3} empleada para el desarrollo de Q3. Para desarrollos comerciales \textit{id Software} ofreció una licencia de su nuevo motor a empresas de terceros. Una de las muchas empresas que licenció \textit{id tech 3} fue Activision, para el desarrollo de la primera edición de \textit{Call of Duty}. La licencia del motor permitía la modificación del mismo, y a día de hoy la familia de juegos de la franquicia de Call of Duty todos usan una versión modificada cuya raíz es \textit{id tech 3}. \cite{idtech3}\\
+	El nuevo motor desarrollado para crear Q3 fue bautizado como \textit{id tech 3}. Cuando existan referencias a Q3 en esta memoria, realmente se estará haciendo referencia a la versión de \textit{id tech 3} empleada para el desarrollo de Q3. Para desarrollos comerciales, \textit{id Software} ofreció una licencia de su nuevo motor a empresas de terceros. Una de las múltiples empresas que licenció \textit{id tech 3} fue Activision, para el desarrollo de la primera edición de \textit{Call of Duty}. La licencia del motor permitía la modificación del mismo y, a día de hoy, la familia de juegos de la franquicia de \textit{Call of Duty} todos usan una versión modificada cuya raíz es \textit{id tech 3}. \cite{idtech3}\\
 	
-	Asimismo, siguiendo la filosofía de "compartir y colaborar para avanzar la tecnología" del programador líder John Carmack, \textit{id Software} liberó todo el código fuente de Q3 bajo la licencia GPL-2.0 \cite{sourcecode}. La liberación de este código provocó que el juego fuera portado a muchas nuevas arquitecturas y, al tener dependencias con licencias abiertas, permitió que los fans hicieran versiones mejoradas del juego completamente retrocompatibles con el contenido pasado, añadiendo funcionalidades nuevas y arreglando bugs conocidos. Una de estas implementaciones de software libre muy popular es \textit{ioquake3} \cite{ioquake3}. \\
+	Asimismo, siguiendo la filosofía de ``compartir y colaborar para avanzar la tecnología'' del programador líder John Carmack, \textit{id Software} liberó todo el código fuente de Q3 bajo la licencia GPL-2.0 \cite{sourcecode}. La liberación de este código provocó que el juego fuera portado a muchas nuevas arquitecturas y, al tener dependencias con licencias abiertas, permitió que los seguidores hicieran versiones mejoradas del juego completamente retrocompatibles con el contenido pasado, añadiendo funcionalidades nuevas y arreglando bugs conocidos. Una de estas implementaciones de software libre muy popular es \textit{ioquake3} \cite{ioquake3}. \\
 	
-	Durante el desarrollo de este informe se utilizará el código inicialmente liberado en 2005, con una \textit{release} única, ya que no se ha subido un histórico de \textit{commits}, y cuyos programadores  \,---\, de acuerdo a los créditos \,---\, son John Carmack (Director técnico y autor de la mayor parte del código), Robert A. Duffy y Jim Dose.\\
+	Durante el desarrollo de este informe se utilizará el código inicialmente liberado en 2005, con una \textit{release} única, ya que no se ha subido un histórico de \textit{commits}, y cuyos programadores  \,---\, de acuerdo a los créditos \,---\, son John Carmack (director técnico y autor de la mayor parte del código), Robert A. Duffy y Jim Dose.\\
 	
-	El estado actual del proyecto es el mismo que cuando se desplegó la versión final del juego en 1999 (El código liberado en 2005 compila una versión exacta a la última versión disponible de Q3 en el momento). Aunque existen clones de este proyecto cuyo código ha sido limpiado sin introducir nuevos cambios o arreglar errores, se estudiará el código tal y como fue subido.\\
+	El estado actual del proyecto es el mismo que cuando se desplegó la versión final del juego en 1999 (el código liberado en 2005 compila una versión exacta a la última versión disponible de Q3 en el momento). Aunque existen clones de este proyecto cuyo código ha sido limpiado sin introducir nuevos cambios o arreglar errores, se estudiará el código tal y como fue subido.\\
 	
 	goals, actors, status, releases \cite{example}\\
 	
@@ -108,7 +108,9 @@
 	
 	\section{Arquitectura de Software: Patrones y Antipatrones}
 	patterns and anti-patterns\\
-	La gran mayoría de aplicaciones están basados en sistemas 2D que solo requieren actualizar partes de la vista en cada momento. Cuando nos referimos a aplicaciones 3D estas arquitecturas clásicas no son compatibles, ya que para dar sensación de fluidez y continuidad el software debe generar una serie de frames cada segundo de manera constante. Incluso cuando el software no está haciendo ningún input, se produce el output de los frames. La arquitectura común de todos los aplicativos 3D es el render-loop:
+	La gran mayoría de aplicaciones están basadas en sistemas 2D que sólo requieren actualizar partes de la vista en cada momento. Cuando nos referimos a aplicaciones 3D, estas arquitecturas clásicas no son compatibles ya que, para dar sensación de fluidez y continuidad, el software debe generar una serie de frames cada segundo de manera constante. Incluso cuando el software no está haciendo ningún input, se produce el output de los frames. \\
+	
+	La arquitectura común de todos los aplicativos 3D es el render-loop:
 	
 	\begin{lstlisting}[style=C, numbers=none]
 while (!quit)
@@ -132,10 +134,10 @@ while (!quit)
 \end{lstlisting}
 	
 	
-
+	En un videojuego, además de hacer el renderizado, se debe tener en cuenta la interactividad con el usuario, que en este caso afectará a muchos más elementos que el movimiento de la cámara. %, ya que el jugador afecta a%
+	Para ello se introduce el concepto del \textit{game-loop}, un bucle que además de ejecutar las tareas de renderizado contiene toda la lógica de control del juego.\\
 	
-	En un videojuego, además de hacer el renderizado, necesitamos tener en cuenta la interactividad con el usuario, que en este caso afectará a muchos más elementos que el movimiento de la cámara. %, ya que el jugador afecta a%
-	Para ello se introduce el concepto del game-loop, un bucle que además de ejecutar las tareas de renderizado contienen toda la lógica de control del juego. Un ejemplo básico de un game-loop sería el caso del videojuego clásico Pong:
+	 Un ejemplo básico de un game-loop sería el caso del videojuego clásico Pong:
 	
 
 	
@@ -171,47 +173,47 @@ void main() // Pong
 	
 	Esta aproximación de game-loop es demasiado básica y limitada para juegos modernos. Aún así, la arquitectura de dichos juegos se basa un game-loop que contiene a su vez una serie de bucles de cada subsistema del motor, pudiendo correr cada uno de esos bucles a un frecuencia distinta del resto. Por ejemplo: en un segundo queremos renderizar 60 fotogramas, pero sólo tenemos que recibir paquetes de red 30 veces por segundo. 
 	
-	Destacamos dos aproximaciones muy frecuentes en el desarrollo de motores de videojuegos:
+	Se destacan dos aproximaciones muy frecuentes en el desarrollo de motores de videojuegos:
 	
 	\begin{itemize}
-		\item Callback-Driven frameworks. La mayoría de los subsistemas de motores y de paquetes middleware de videojuegos están estructurados como librerías. Para la implementación del game-loop usamos las llamadas a esos subsistemas a partir de sus API's para agilizar la lógica de cada subsistema en cada iteración. Por ejemplo: si estuviéramos implementando el flappy bird utilizando este estilo, una iteración del bucle podía parecerse a algo similar a:
+		\item \textbf{\textit{Callback-Driven frameworks}}. La mayoría de los subsistemas de motores y de paquetes middleware de videojuegos están estructurados como librerías. Para la implementación del game-loop se usan las llamadas a esos subsistemas a partir de sus API's para agilizar la lógica de cada subsistema en cada iteración. Por ejemplo: si se estuviera implementando el juego de \textit{Flappy bird} utilizando este estilo, una iteración del bucle podía parecerse a algo similar a:
 		
 		\begin{lstlisting}[style=C, numbers=none]
 void main() // Flappy Bird
 {
-	GameLogic.initGame();
-	Audio.playBackgroundMusic();
-	while (true) // game loop
-	{
-		Input.readHumanInterfaceDevices();
-		if (input.screeenTouched())
-		{
-			Physics.increaseBirdUpMomentum(); // exit the game loop
-		}
-		GameLogic.moveBird();
-		GameLogic.scrollScreen();
-		if (Physics.birdCollision() //If the bird collides with ground or pipe
-		{
-			break; //Exit game loop
-		}
-		Audio.playSoundEffects();
-		Graphics.renderScreen();
-	}
-	Networking.loadHighScores(); //
-	GameLogic.playGameOverScreen();
+  GameLogic.initGame();
+  Audio.playBackgroundMusic();
+  while (true) // game loop
+  {
+    Input.readHumanInterfaceDevices();
+    if (input.screeenTouched())
+    {
+      Physics.increaseBirdUpMomentum(); // exit the game loop
+    }
+    GameLogic.moveBird();
+    GameLogic.scrollScreen();
+    if (Physics.birdCollision() //If the bird collides with ground or pipe
+    {
+      break; //Exit game loop
+    }
+    Audio.playSoundEffects();
+    Graphics.renderScreen();
+  }
+  Networking.loadHighScores(); //
+  GameLogic.playGameOverScreen();
 }
 		\end{lstlisting}
 		
 		
-		El programador, en este ejemplo, sólo ha tenido que diseñar la lógica de cómo funciona el juego y ha dejado en manos de los subsistemas la ejecución de bajo nivel de los resultados de la interacción del usuario. Los subsistemas utilizados en este caso, y que el programador no está obligado a conocer más que sus API's, serían las implementaciones de networking, de audio, de gráficos, de input y de físicas. La mayoría de estas librerías son independientes e intercambiables entre sí, a las que se accede utilizando un patrón facade.
+		El programador, en este ejemplo, sólo ha tenido que diseñar la lógica de cómo funciona el juego y ha dejado en manos de los subsistemas la ejecución de bajo nivel de los resultados de la interacción del usuario. Los subsistemas utilizados en este caso, y de los que el programador no está obligado a conocer más que sus API's, serían las implementaciones de networking, de audio, de gráficos, de input y de físicas. La mayoría de estas librerías son independientes e intercambiables entre sí, a las que se accede utilizando un patrón facade.
 		
-		Si en el futuro el programador decidiera programar este juego para iOS, este código tendría que adaptar las llamadas de API a las librerías disponibles en iOS, quizá utilizando el patrón adaptador para evitar cambiar la lógica principal y tipos de datos de su sistema.	
+		Si en el futuro el programador decidiera programar este juego para iOS, este código tendría que adaptar las llamadas de API a las librerías disponibles en iOS, quizá utilizando el \textit{\textbf{patrón adaptador}} para evitar cambiar la lógica principal y los tipos de datos de su sistema.	
 		
-		\item Event-Based Updating. En este estilo de implementación todos los subsistemas son capaces de enviar y recibir eventos. Estos eventos son similares a los que se usan en los patrones de interfaces gráficas como MVC. 
+		\item \textit{\textbf{Event-Based Updating}}. En este estilo de implementación todos los subsistemas son capaces de enviar y recibir eventos. Estos eventos son similares a los que se usan en los patrones de interfaces gráficas como MVC. 
 		
-		En el game-loop se han de procesar todos los eventos recibidos en la anterior iteración y distribuirlos a los subsistemas pertinentes para que los procesen, además, también se encarga de notificar a los subsistemas de en qué instante se encuentra la ejecución del programa. Los eventos recibidos no siempre tienen por qué ser procesados inmediatamente, por lo que cada subsistema debe de tener capacidad para almacenar eventos y en base a la información del bucle principal, ser consciente del instante en el que ha de procesar cada uno de los eventos. 
+		En el game-loop se han de procesar todos los eventos recibidos en la anterior iteración y distribuirlos a los subsistemas pertinentes para que los procesen. Además, también se debe de encargar de notificar a los subsistemas de en qué instante se encuentra la ejecución del programa. Los eventos recibidos no siempre tienen por qué ser procesados inmediatamente, por lo que cada subsistema debe de tener capacidad para almacenar eventos y en base a la información del bucle principal, ser consciente del instante en el que ha de procesar cada uno de los eventos. 
 		
-		La implementación de este modelo puede ser completa, separando todos los subsistemas, o usarse sólo para ciertos subsistemas como suele ocurrir en motores en los que se implementó a posteriori y en los que era muy difícil desacoplar el subsistema de rendering de otros que dependían de él como: físicas, audio e IA.
+		La implementación de este modelo puede ser completa, separando todos los subsistemas, o usarse sólo para ciertos subsistemas, como suele ocurrir en motores en los que se implementó \textit{a posteriori} y en los que era muy difícil desacoplar el subsistema de rendering de otros que dependían de él como: físicas, audio e IA.
 	
 	    A lo largo de este trabajo se comentarán patrones apoyados en esta arquitectura basada en eventos.
 		
@@ -241,85 +243,85 @@ void main() // Flappy Bird
 			\end{figure}
 		\end{center}
 	
-	En esta arquitectura destacamos dos decisiones de diseño muy importantes:
+	En esta arquitectura se destacan dos decisiones de diseño muy importantes:
 	
 	\subsubsection{Bitácora de inputs para facilitar las pruebas}
 	
 	Cada uno de los inputs recibidos (Teclado, mensaje win32, ratón, socket UDP) es convertido a \textit{event\_t} y encolado en una cola de eventos (\textit{sysEvent\_t eventQue[256]}). Con esta aproximación se puede mantener una bitácora de estos inputs que, junto con otros factores también almacenados, permiten ser reproducidos en orden para recrear bugs de manera consistente. \cite{johncplan}\\
 	
-	En la figura X identificamos dentro de la parte \textit{Common} el administrador de inputs, la cola de eventos y el \textit{event journal} mencionado.
+	En la figura X se identifican dentro de la parte \textit{Common} el administrador de inputs, la cola de eventos y el \textit{event journal} mencionado.
 	
 	\subsubsection{Separación explícita de cliente y servidor}
 	
 	Durante el desarrollo de \textit{id tech 3} se decidió tomar la decisión de implementar una arquitectura cliente-servidor en la que los roles y subsistemas de cada uno de los dos fueran significativamente distintos. Hasta entonces los clientes y servidores contenían el mismo código pero debían desempeñar roles distintos.\\
 	
-	En Q3 el servidor es el responsable de mantener el estado de la partida, determinar información de la partida necesitan los clientes y propagarla por la red. Podemos ver en la imagen que \textit{bot.lib} está contenido únicamente dentro de la parte servidora, ya que es también la encargada de proveer la lógica e inputs de los jugadores controlados por la IA.\\
+	En Q3 el servidor es el responsable de mantener el estado de la partida, determinar información de la partida necesitan los clientes y propagarla por la red. Se puede observar en la imagen que \textit{bot.lib} está contenido únicamente dentro de la parte servidora, ya que es también la encargada de proveer la lógica e inputs de los jugadores controlados por la IA.\\
 	
-	El cliente es responsable de predecir dónde están los objetos en cada instante, incluyendo los elementos afectados por la red utilizando una técnica llamada \textit{lag compensation}, y de renderizar la vista para el usuario \,---\, De nuevo, en la figura X vemos como renderer.lib está contenido en la parte cliente.	\cite{architecture}\\
+	El cliente es responsable de predecir dónde están los objetos en cada instante, incluyendo los elementos afectados por la red utilizando una técnica llamada \textit{lag compensation}, y de renderizar la vista para el usuario \,---\, De nuevo, en la figura X se puede observar como\textit{ renderer.lib} está contenido en la parte cliente.	\cite{architecture}\\
 	
 	\subsubsection{Eventos desde el punto de vista del código}
 	
-	Para ilustrar la producción/consumición de eventos podemos estudiar el bucle principal (\textit{main}) del código de Q3. Vemos un ejemplo resumido (Código omitido y desenroscado):
+	Para ilustrar la producción/consumición de eventos se puede estudiar el bucle principal (\textit{main}) del código de Q3. Se muestra un ejemplo resumido (Código omitido y desenroscado):
 	
 	\begin{lstlisting}[style=C, numbers=none]
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	Com_Init
+  Com_Init
 	
-	NET_Init
+  NET_Init
 	
-	while( 1 )
-	{
-		// Codigo de Common 
-		IN_Frame()  // Inyecta los inputs de Win32 joystick y raton en la cola unificada de eventos como event_t.
-		{
-			IN_JoyMove                                    
-			IN_ActivateMouse
-			IN_MouseMove
-		}
-		
-		Com_Frame
-		{
-			// Codigo de Common 
-			Com_EventLoop // Envia mensajes win32, paquetes UDP del socket y comandos de la consola a la cola (sysEvent_t eventQue[256]) 
-			Cbuf_Execute
-			
-			// Codigo de Servidor (SV)
-			SV_Frame
-			{
-				SV_BotFrame // Llamada a bot.lib para avanzar su logica
-				VM_Call( gvm, GAME_RUN_FRAME, svs.time ) // Llamada a la Game Virtual Machine para procesar la logica de juego
-				
-				SV_CheckTimeouts
-				SV_SendClientMessages  // Enviar el snapshot o delta snapshot (diferencia entre el snapshot anterior y el actual) a los clientes conectados
-			} 
-		
-			// Codigo de Common aqui
-			Com_EventLoop
-			Cbuf_Execute
-			
-			// Codigo de cliente (CL)
-			CL_Frame
-			{
-				CL_SendCmd // Eenviar los comandos al servidor usando la cola de eventos.
-				
-				SCR_UpdateScreen
-				VM_Call( cgvm, CG_DRAW_ACTIVE_FRAME); // Enviar mensajes a la Client Virtual Machine (encargada de hacer las predicciones).
-				or
-				VM_Call( uivm, UI_DRAW_CONNECT_SCREEN); // Envia un mensaje a la UI Virtual Machine si esta el menu abierto
-				
-				S_Update // Actualizar los buffers de sonido
-				}
-			}	
-	}
+  while( 1 )
+  {
+     // Codigo de Common 
+    IN_Frame()  // Inyecta los inputs de Win32 joystick y raton en la cola unificada de eventos como event_t.
+    {
+      IN_JoyMove
+      IN_ActivateMouse
+      IN_MouseMove
+    }
+    
+    Com_Frame
+    {
+      // Codigo de Common 
+      Com_EventLoop // Envia mensajes win32, paquetes UDP del socket y comandos de la consola a la cola
+      (sysEvent_t eventQue[256])
+      Cbuf_Execute
+      
+      // Codigo de Servidor (SV)
+      SV_Frame
+      {
+        SV_BotFrame // Llamada a bot.lib para avanzar su logica
+        VM_Call( gvm, GAME_RUN_FRAME, svs.time ) // Llamada a la Game Virtual Machine para procesar la logica de juego
+        SV_CheckTimeouts
+        SV_SendClientMessages  // Enviar el snapshot o delta snapshot (diferencia entre el snapshot anterior y el actual) a los clientes conectados
+      } 
+      
+      // Codigo de Common aqui
+      Com_EventLoop
+      Cbuf_Execute
+      
+      // Codigo de cliente (CL)
+      CL_Frame
+      {
+        CL_SendCmd // Eenviar los comandos al servidor usando la cola de eventos.
+        
+        SCR_UpdateScreen
+        VM_Call( cgvm, CG_DRAW_ACTIVE_FRAME); // Enviar mensajes a la Client Virtual Machine (encargada de hacer las predicciones).
+        or
+        VM_Call( uivm, UI_DRAW_CONNECT_SCREEN); // Envia un mensaje a la UI Virtual Machine si esta el menu abierto
+        
+        S_Update // Actualizar los buffers de sonido
+      }
+    }
+  }
 }
 	\end{lstlisting}
 
-    En este código podemos observar la potencia del patrón basado en máquinas virtuales (que comentaremos en detalle en las siguientes secciones), que permite obviar las llamadas de renderizado en el bucle principal del juego. Lo único que necesita hacer este bucle es enviar un mensaje (evento) a la máquina virtual del cliente (\textit{CG\_DRAW\_ACTIVE\_FRAME}) indicándole que es necesario realizar un refresco (Cargar el siguiente fotograma).\\
+    En este código se puede observar la potencia del patrón basado en máquinas virtuales (que se comentará en detalle en las siguientes secciones), que permite obviar las llamadas de renderizado en el bucle principal del juego. Lo único que necesita hacer este bucle es enviar un mensaje (evento) a la máquina virtual del cliente (\textit{CG\_DRAW\_ACTIVE\_FRAME}) indicándole que es necesario realizar un refresco (cargar el siguiente fotograma).\\
     
-    Esta máquina virtual realiza los trabajos de culling y predicción antes de llamar a las librerías de OpenGL usando una llamda del sistema Q3 (\textit{CG\_R\_RENDERSCENE}). Cuando Quake.exe recibe esta llamada es cuando realmente se llama a la función de renderizado de la escena (\textit{RE\_RenderScene}).\cite{unrolled_loop_source}\cite{unrolled_loop}\\   
+    Esta máquina virtual realiza los trabajos de culling y predicción antes de llamar a las librerías de OpenGL usando una llamada del sistema Q3 (\textit{CG\_R\_RENDERSCENE}). Cuando Quake.exe recibe esta llamada es cuándo realmente se llama a la función de renderizado de la escena (\textit{RE\_RenderScene}).\cite{unrolled_loop_source}\cite{unrolled_loop}\\   
     
-    En la figura X podemos visualizar esta explicación. En lugar de tener todas las llamadas acopladas y dependientes del mismo ciclo de vida, aprovechamos la arquitectura de mensajes para que cada componente realice su trabajo cuando esté listo para procesarlo. Además, esto implica que Quake3.exe no tiene necesidad de saber qué trabajos va a realizar la \textit{Client Virtual Machine} antes de hacer el lanzar el mensaje para hacer el render de la escena.\\
+    En la figura X se puede visualizar esta explicación. En lugar de tener todas las llamadas acopladas y dependientes del mismo ciclo de vida, se aprovecha la arquitectura de mensajes para que cada componente realice su trabajo cuando esté listo para procesarlo. Además, esto implica que Quake3.exe no tiene necesidad de saber qué trabajos va a realizar la \textit{Client Virtual Machine} antes de lanzar el mensaje para hacer el render de la escena.\\
     
     
     %CREAR DIAGRAMA Y PONER AQUI
@@ -333,7 +335,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 %    |                        |                                           syscall( CG_R_RENDERSCENE, fd )
 %    |                   RE_RenderScene <--------------------------------------|
 %    |                        |                                                |
-%    | <----------------------|                                                |
+%    | <--------------|                                                |
 %    |                        |                                                |
     
 	
@@ -354,7 +356,6 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	
 	
 	\begin{appendices}
-	
 	\end{appendices}
 	
 	\begin{thebibliography}{9}
