@@ -257,7 +257,15 @@ void main() // Flappy Bird
 	
 	En Q3 el servidor es el responsable de mantener el estado de la partida, determinar información de la partida necesitan los clientes y propagarla por la red. Se puede observar en la imagen que \textit{bot.lib} está contenido únicamente dentro de la parte servidora, ya que es también la encargada de proveer la lógica e inputs de los jugadores controlados por la IA.\\
 	
-	El cliente es responsable de predecir dónde están los objetos en cada instante, incluyendo los elementos afectados por la red utilizando una técnica llamada \textit{lag compensation}, y de renderizar la vista para el usuario \,---\, De nuevo, en la figura X se puede observar como\textit{ renderer.lib} está contenido en la parte cliente.	\cite{architecture}\\
+	El cliente es responsable de predecir dónde están los objetos en cada instante, incluyendo los elementos afectados por la red utilizando una técnica llamada \textit{lag compensation}, y de renderizar la vista para el usuario \,---\, De nuevo, en la figura X se puede observar como\textit{ renderer.lib} está contenido en la parte cliente. \cite{architecture}\\
+    
+    \subsubsection{Arquitectura de Red basada en Snapshots}
+    
+    http://fabiensanglard.net/quake3/network.php
+    
+    \subsubsection{Quake Virtual Machines}
+    
+    http://fabiensanglard.net/quake3/qvm.php
 	
 	\subsubsection{Eventos desde el punto de vista del código}
 	
@@ -317,26 +325,14 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 }
 	\end{lstlisting}
 
-    En este código se puede observar la potencia del patrón basado en máquinas virtuales (que se comentará en detalle en las siguientes secciones), que permite obviar las llamadas de renderizado en el bucle principal del juego. Lo único que necesita hacer este bucle es enviar un mensaje (evento) a la máquina virtual del cliente (\textit{CG\_DRAW\_ACTIVE\_FRAME}) indicándole que es necesario realizar un refresco (cargar el siguiente fotograma).\\
+    En este código se puede observar la potencia del patrón basado en máquinas virtuales, que permite obviar las llamadas de renderizado en el bucle principal del juego. Lo único que necesita hacer este bucle es enviar un mensaje (evento) a la máquina virtual del cliente (\textit{CG\_DRAW\_ACTIVE\_FRAME}) indicándole que es necesario realizar un refresco (cargar el siguiente fotograma).\\
     
     Esta máquina virtual realiza los trabajos de culling y predicción antes de llamar a las librerías de OpenGL usando una llamada del sistema Q3 (\textit{CG\_R\_RENDERSCENE}). Cuando Quake.exe recibe esta llamada es cuándo realmente se llama a la función de renderizado de la escena (\textit{RE\_RenderScene}).\cite{unrolled_loop_source}\cite{unrolled_loop}\\   
     
     En la figura X se puede visualizar esta explicación. En lugar de tener todas las llamadas acopladas y dependientes del mismo ciclo de vida, se aprovecha la arquitectura de mensajes para que cada componente realice su trabajo cuando esté listo para procesarlo. Además, esto implica que Quake3.exe no tiene necesidad de saber qué trabajos va a realizar la \textit{Client Virtual Machine} antes de lanzar el mensaje para hacer el render de la escena.\\
     
     
-    %CREAR DIAGRAMA Y PONER AQUI
-%     OpenGL                Quake3.exe                                 Client Virtual machine
-%    --------               ----------                                ----------------------
-%    |                        |                                                |
-%    |                        |                                                |
-%    |                   VM_Call(CG_DRAW_ACTIVE_FRAME)----------------->  CG_DrawActiveFrame
-%    |                        |                                           CG_DrawActive
-%    |                        |                                           trap_R_RenderScene
-%    |                        |                                           syscall( CG_R_RENDERSCENE, fd )
-%    |                   RE_RenderScene <--------------------------------------|
-%    |                        |                                                |
-%    | <--------------|                                                |
-%    |                        |                                                |
+
     
 	
 	
@@ -346,12 +342,18 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	design patterns and anti-patterns\\
 	
 	\section{Calidad del Software}
-	metrics, documentation, testing and CI, etc\\
+    El software se distribuyó en una única release, ofreciendo el código fuente del motor y unas breves líneas de cómo compilar para Windows, Linux y Mac. No se proporciona más documentación que este breve README, aunque la gente que ha trabajado con este código liberado dice no haber tenido problema para familiarizarse con el código usando los comentarios y la claridad del estilo utilizado, con ficheros y clases bien diferenciadas.\\
+    
+    No se acompaña el código, tampoco, con ningún tipo de test, por lo que cualquier modificación propia podría introducir cambios y regresiones en las features ya implementadas sin ningún tipo de manera de comprobarlo de manera automática. La filosofía en \textit{id software} era basada en que el testing era una tarea del programador sobre su propio código, además de mediante playtesting diario para comprobar la integración. Es difícil automatizar las tareas de testing para un videojuego online, actualmente se sigue empleando el testing via playtesting entre jugadores reales, pero sí se echan en falta \textit{unit tests} sobre módulos en los que podría encajar hacerlos.\\
+    
+    Respecto al performance en Q3 se incluyen varias herramientas in-game para medir todo tipo de parámetros relacionados. Podemos distinguir entre dos grandes grupos, las mediciones sobre el performance gráfico (Como los fotogramas por segundo y \textit{frame time}) y las mediciones sobre la red, accesibles mediante la variable \textit{CG\_LAGOMETER}. Con el Lag-o-Meter podemos obtener gráficas sobre el estado de la conexión entre el cliente y el servidor, de esta manera podrían observarse cuellos de botella o problemas en los protocolos de red implementados.
 	
 	\section{Estado de la accesibilidad en el proyecto}
+    Al ser un juego de acción rápida contra oponentes por Internet no existen ningún tipo de consideración para la accesibilidad de ningún tipo. Aún así, existen algunas features que se podrían haber incluído para mejorar la accesibilidad del software como: Paletas de colores para daltónicos, ajustes de brillo y contraste extremos para gente con muy mala vista e indicadores visuales y subtítulos para sordos.
 	
 	\section{Conclusiones}
-			
+	TODO\\
+    
 	
 	
 	
