@@ -258,14 +258,6 @@ void main() // Flappy Bird
 	En Q3 el servidor es el responsable de mantener el estado de la partida, determinar información de la partida necesitan los clientes y propagarla por la red. Se puede observar en la imagen que \textit{bot.lib} está contenido únicamente dentro de la parte servidora, ya que es también la encargada de proveer la lógica e inputs de los jugadores controlados por la IA.\\
 	
 	El cliente es responsable de predecir dónde están los objetos en cada instante, incluyendo los elementos afectados por la red utilizando una técnica llamada \textit{lag compensation}, y de renderizar la vista para el usuario \,---\, De nuevo, en la figura X se puede observar como\textit{ renderer.lib} está contenido en la parte cliente. \cite{architecture}\\
-    
-    \subsubsection{Arquitectura de Red basada en Snapshots}
-    
-    http://fabiensanglard.net/quake3/network.php
-    
-    \subsubsection{Quake Virtual Machines}
-    
-    http://fabiensanglard.net/quake3/qvm.php
 	
 	\subsubsection{Eventos desde el punto de vista del código}
 	
@@ -366,14 +358,110 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 	
 	% Intentar analizar a ver si se encuentra algún observador. A lo mejor para finalizar la partida si te matan o algo. Hay que mirar.
 	
-	
-	
-	A pesar de que es un código que llama la atención por su buena estructura, también se debe de exponer que contiene algunos antipatrones en él.\\
-	
-	Por ejemplo:\\
-
 
 	
+	
+	
+    \subsubsection{Memento Pattern: Arquitectura de Red basada en Snapshots}
+	Para coordinar los estados de la partida en el servidor, con el fin de sincronizar todos los clientes y generar estados consistentes basándose en la interacción de los mismos, Q3 utiliza una implementación del patrón memento.\\
+	
+	\begin{center}
+		\begin{figure}[h]
+			\includegraphics[width=1\textwidth]{images/q3_network_arch}
+			\label{fig:q3vm}
+			\caption{Q3 architecture virtual machines}
+		\end{figure}
+	\end{center}
+
+	Dentro del módulo servidor existe un denominado \textit{Master gamestate} que representa el estado veraz y universal de la partida. Cada cliente almacena los últimos 32 estados en un lista circular, estos estados son llamados \textit{snapshots}. El dummy snapshot es un estado con todos los valores a 0 utilizado para calcular el delta (diferencia entre el estado actual y el siguiente) cuando no existe estado anterior.\\
+	
+	Simplificando mucho el funcionamiento del networking, los clientes no envían y reciben estados completos, sino que guardan los últimos estados con el fin de sólo enviar y recibir la diferencia entre estados, omitiendo información repetida, sólo actualizando lo necesario. Si fuera necesario, se podría mandar el estado completo en lugar de una actualización parcial.\\
+	
+	La ventaja de esta implementación reside en la posibilidad de enviar la diferencia entre estados arbitrariamente antiguos. Es decir, si un cliente no recibió una actualización de un estado (Por problemas de conectividad, por ejemplo), no es viable re-enviar la paquetería de ese estado \,---\ Y de hecho no sería posible, ya que toda la paquetería de red en Q3 es basada en UDP. En su lugar, se ignora esa actualización y en la siguiente actualización el cliente reportará al servidor el estado de su mundo, el servidor simplemente manda la diferencia entre el estado maestro y su estado, sin importarle cuántos snapshots de retraso tenga el cliente (hasta el límite de snapshots) y sin necesidad de implementar control sobre los estados concretos. Si la diferencia es suficientemente grande, podría provocar un reenvío del estado completo.
+	
+	%Introducir algo de código de networking?
+
+	\subsubsection{Command pattern: Quake Virtual Machines}
+	
+	Por motivos de rendimiento y portabilidad, la lógica del juego en Q3 (Y antiguos Quakes) se ejecuta encapsulada en las llamadas Quake Virtual Machines, que son un sistema similar a un 'Sandbox' que limita las instrucciones que se pueden utilizar y cómo se ejecutan. Su comportamiento es similar a la JVM respecto a que el código escrito para Q3VM corre en todos los sistemas que tengan Q3VM interpreter. \cite{q3vm}\\
+	
+	\begin{center}
+		\begin{figure}[h]
+			\includegraphics[width=1\textwidth]{images/q3_workspace_architecture}
+			\label{fig:q3vm}
+			\caption{Q3 architecture virtual machines}
+		\end{figure}
+	\end{center}
+	
+	Los módulos de \textit{game}, \textit{cgame} y \textit{q3\_ui} están escritos para Q3VM, y para acceder a ellos se ha de emplear la llamada de acceso \textit{VM\_Call( vm\_t *vm, int callnum, ... )}. Esta llamada es interpretada por la Q3VM, que extrae las instrucciones que debe ejecutar según los parámetros de la llamada. El cliente que realiza la llamada no tiene conocimiento del contenido de la operación a la que llama, pero usando la encapsulación en la VMCall puede hacer uso de la operación.\\
+	
+	El flujo de una VMCall sería así:
+	
+	\begin{itemize}  
+		\item La VMCall se construye con hasta 11 parámetros, y escribe cada valor de 4 bytes en el bytecode de la VM (\textit{vm\_t *vm}) con valores desde 0x00 hasta 0x26
+		\item La VMCall pasa el id del mensaje localizado en 0x2A
+		\item El interpreter comienza a interpretar los opcodes empezando en 0x2D
+		\item vmMain es el encargado de hacer dispatch y enrutado del mensaje al método correspondiente al bytecode
+	\end{itemize}
+
+	\begin{center}
+		\begin{figure}[h]
+			\includegraphics[width=1\textwidth]{images/vm_bb}
+			\label{fig:q3vm_bb}
+			\caption{Q3 virtual machine Bytecode interpreter}
+		\end{figure}
+	\end{center}
+
+	Un ejemplo concreto de esto podemos observarlo en el \textit{main} del código servidor:
+	
+		\begin{lstlisting}[style=C, numbers=none]
+// run the game simulation in chunks
+while ( sv.timeResidual >= frameMsec ) {
+	sv.timeResidual -= frameMsec;
+	svs.time += frameMsec;
+	
+	// let everything in the world think and move
+	VM_Call( gvm, GAME_RUN_FRAME, svs.time );
+}
+	\end{lstlisting}
+	
+	Tras realizar sus tareas previas, el servidor pasa el control a \textit{game} mediante una llamada a su VM, pasándole el parámetro \textit{GAME\_RUN\_FRAME} que indica al módulo \textit{game} que tiene que hacer los cálculos necesarios para procesar el siguiente frame basándose en la referencia de tiempo. El código del servidor está completamente abstraído de los cálculos para generar el siguiente frame.\\
+	 \cite{q3vmcallex}
+
+	Para la comunicación en el sentido opuesto, la Q3VM utiliza llamadas del sistema para comunicarse con Quake3. Estas llamadas del sistema están definidas en los ficheros cabecera del \textit{Client VM}\cite{q3vmclient} y \textit{Server VM}\cite{q3vmserver}\\
+	
+	
+	Además de utilizar este command pattern para ejecutar operaciones implementadas en código ejecutable por la Q3VM, las Q3VM también son capaces de ejecutar bytecode compilado en instrucciones x86 y código compilado para dll de Windows. \cite{q3vmbb}
+	
+	
+		\subsubsection{Interpreter pattern: Quake Console}
+	Una de las herramientas más potentes integradas en Q3 es la consola del desarrollador. Con ella el usuario puede introducir comandos para afectar a variables internas y configuraciones. Todas las operaciones de menús tienen un equivalente accesible por la consola, aunque su utilizad se extiende más allá, permitiendo incluso ser utilizada para mostrar mensajes informativos al usuario durante la partida de manera dinámica y estándar.\\
+	
+	Para conseguir esto se hace uso de un patrón interpreter para procesar el comando y sus parámetros, y convertirlos en las instrucciones a ejecutar para modificar las propiedades del motor pertinentes.\cite{console_source}\cite{consolecmd_source}\\
+	
+	Cuando el cliente escribe un comando en su consola local se ejecuta en \textit{cgame} la llamada para el interprete de comandos utilizando una llamada del sistema (Q3VM -> Q3):\\
+	
+	\begin{lstlisting}[style=C, numbers=none]
+void CG_TargetCommand_f( void ) {
+int		targetNum;
+char	test[4];
+
+targetNum = CG_CrosshairPlayer();
+if (!targetNum ) {
+return;
+}
+
+trap_Argv( 1, test, 4 );
+trap_SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
+}
+	\end{lstlisting}
+	
+	
+	
+	
+A pesar de que es un código que llama la atención por su buena estructura, también se debe de exponer que contiene algunos antipatrones en él.\\
+
+Por ejemplo:\\
 
 	
 	\section{Calidad del Software}
@@ -404,9 +492,15 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 		\bibitem{ioquake3} ioquake3 \emph{ioquake3}. URL: \url{https://ioquake3.org/}
         \bibitem{johncplan} John Carmack's 14 Oct 1998 .plan (Archived from original). \emph{John Carmack}. URL: \url{https://raw.githubusercontent.com/ESWAT/john-carmack-plan-archive/master/by_day/johnc_plan_19981014.txt}
 		\bibitem{architecture} Quake 3 Source Code Review. \emph{Fabien Sanglard}. URL: \url{http://fabiensanglard.net/quake3/index.php}
-		\bibitem{unrolled_loop_source} Quake 3 Main. \emph{id software}. URL: \url{https://raw.githubusercontent.com/id-Software/Quake-III-Arena/dbe4ddb10315479fc00086f08e25d968b4b43c49/code/win32/win_main.c}
+		\bibitem{unrolled_loop_source} Quake 3 Main. \emph{id software}. URL: \url{https://raw.githubusercontent.com/id-Software/Quake-III-Arena/master/code/win32/win_main.c}
         \bibitem{unrolled_loop} Quake 3 Loop Unrolled. \emph{Fabien Sanglard}. URL: \url{http://fabiensanglard.net/quake3/q3_loop_unrolled.txt}
-		
+        \bibitem{q3vm} Quake 3 Virtual Machines. \emph{phaethon}. URL: \url{https://www.icculus.org/homepages/phaethon/q3mc/q3vm_specs.html}
+        \bibitem{q3vmcallex} Quake 3 Server Main. \emph{id software}. URL: \url{https://raw.githubusercontent.com/id-Software/Quake-III-Arena/master/code/server/sv_main.c}
+        \bibitem{q3vmclient} Quake 3 Client Main. \emph{id software}. URL: \url{https://raw.githubusercontent.com/id-Software/Quake-III-Arena/master/code/game/g_public.h}
+        \bibitem{q3vmserver} Quake 3 Server VM. \emph{id software}. URL: \url{https://raw.githubusercontent.com/id-Software/Quake-III-Arena/master/code/cgame/cg_public.h}
+        \bibitem{q3vmbb} Quake 3 Virtual Machine. \emph{Fabien Sanglard}. URL: \url{http://fabiensanglard.net/quake3/qvm.php}
+		\bibitem{console_source} Quake 3 Console. \emph{id software}. URL: \url{https://raw.githubusercontent.com/id-Software/Quake-III-Arena/master/code/client/cl_console.c}
+		\bibitem{consolecmd_source} Quake 3 Console Commands. \emph{id software}. URL: \url{https://raw.githubusercontent.com/id-Software/Quake-III-Arena/master/code/cgame/cg_consolecmds.c}		
 	\end{thebibliography}
 
 
