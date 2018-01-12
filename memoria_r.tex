@@ -363,7 +363,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 	
 	
     \subsubsection{Memento Pattern: Arquitectura de Red basada en Snapshots}
-	Para coordinar los estados de la partida en el servidor, con el fin de sincronizar todos los clientes y generar estados consistentes basándose en la interacción de los mismos, Q3 utiliza una implementación del patrón memento.\\
+	Para coordinar los estados de la partida en el servidor, con el fin de sincronizar todos los clientes y generar estados consistentes basándose en la interacción de los mismos, Q3 utiliza una implementación del \textit{patrón memento}.\\
 	
 	\begin{center}
 		\begin{figure}[h]
@@ -377,13 +377,13 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 	
 	Simplificando mucho el funcionamiento del networking, los clientes no envían y reciben estados completos, sino que guardan los últimos estados con el fin de sólo enviar y recibir la diferencia entre estados, omitiendo información repetida, sólo actualizando lo necesario. Si fuera necesario, se podría mandar el estado completo en lugar de una actualización parcial.\\
 	
-	La ventaja de esta implementación reside en la posibilidad de enviar la diferencia entre estados arbitrariamente antiguos. Es decir, si un cliente no recibió una actualización de un estado (Por problemas de conectividad, por ejemplo), no es viable re-enviar la paquetería de ese estado \,---\ Y de hecho no sería posible, ya que toda la paquetería de red en Q3 es basada en UDP. En su lugar, se ignora esa actualización y en la siguiente actualización el cliente reportará al servidor el estado de su mundo, el servidor simplemente manda la diferencia entre el estado maestro y su estado, sin importarle cuántos snapshots de retraso tenga el cliente (hasta el límite de snapshots) y sin necesidad de implementar control sobre los estados concretos. Si la diferencia es suficientemente grande, podría provocar un reenvío del estado completo.
+	La ventaja de esta implementación reside en la posibilidad de enviar la diferencia entre estados arbitrariamente antiguos. Es decir, si un cliente no recibió una actualización de un estado (por problemas de conectividad, por ejemplo), no es viable re-enviar la paquetería de ese estado y, de hecho, no sería posible ya que toda la paquetería de red en Q3 es basada en UDP. En su lugar, se ignora esa actualización y en la siguiente actualización el cliente reportará al servidor el estado de su mundo, el servidor simplemente manda la diferencia entre el estado maestro y su estado, sin importarle cuántos snapshots de retraso tenga el cliente (hasta el límite de snapshots) y sin necesidad de implementar control sobre los estados concretos. Si la diferencia es suficientemente grande, podría provocar un reenvío del estado completo.
 	
 	%Introducir algo de código de networking?
 
 	\subsubsection{Command pattern: Quake Virtual Machines}
 	
-	Por motivos de rendimiento y portabilidad, la lógica del juego en Q3 (Y antiguos Quakes) se ejecuta encapsulada en las llamadas Quake Virtual Machines, que son un sistema similar a un 'Sandbox' que limita las instrucciones que se pueden utilizar y cómo se ejecutan. Su comportamiento es similar a la JVM respecto a que el código escrito para Q3VM corre en todos los sistemas que tengan Q3VM interpreter. \cite{q3vm}\\
+	Por motivos de rendimiento y portabilidad, la lógica del juego en Q3 (y antiguos Quakes) se ejecuta encapsulada en las llamadas Quake Virtual Machines, que son un sistema similar a un `Sandbox' que limita las instrucciones que se pueden utilizar y cómo se ejecutan. Su comportamiento es similar a la JVM respecto a que el código escrito para Q3VM corre en todos los sistemas que tengan Q3VM interpreter. \cite{q3vm}\\
 	
 	\begin{center}
 		\begin{figure}[h]
@@ -435,11 +435,11 @@ while ( sv.timeResidual >= frameMsec ) {
 	
 	
 		\subsubsection{Interpreter pattern: Quake Console}
-	Una de las herramientas más potentes integradas en Q3 es la consola del desarrollador. Con ella el usuario puede introducir comandos para afectar a variables internas y configuraciones. Todas las operaciones de menús tienen un equivalente accesible por la consola, aunque su utilizad se extiende más allá, permitiendo incluso ser utilizada para mostrar mensajes informativos al usuario durante la partida de manera dinámica y estándar.\\
+	Una de las herramientas más potentes integradas en Q3 es la consola del desarrollador. Con ella el usuario puede introducir comandos para afectar a variables internas y configuraciones. Todas las operaciones de menús tienen un equivalente accesible por la consola, aunque su utilidad se extiende más allá, permitiendo incluso ser utilizada para mostrar mensajes informativos al usuario durante la partida de manera dinámica y estándar.\\
 	
 	Para conseguir esto se hace uso de un patrón interpreter para procesar el comando y sus parámetros, y convertirlos en las instrucciones a ejecutar para modificar las propiedades del motor pertinentes.\cite{console_source}\cite{consolecmd_source}\\
 	
-	Cuando el cliente escribe un comando en su consola local se ejecuta en \textit{cgame} la llamada para el interprete de comandos utilizando una llamada del sistema (Q3VM -> Q3):\\
+	Cuando el cliente escribe un comando en su consola local se ejecuta en \textit{cgame} la llamada para el intérprete de comandos utilizando una llamada del sistema (Q3VM -> Q3):\\
 	
 	\begin{lstlisting}[style=C, numbers=none]
 void CG_TargetCommand_f( void ) {
