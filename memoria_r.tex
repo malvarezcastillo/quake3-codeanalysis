@@ -221,25 +221,24 @@ void main() // Flappy Bird
 
 %INTRODUCRIR BIBLIOGRAFIA LIBRO%	
 	
-	El motor \textit{id tech 3} y sus antecesores utilizan una arquitectura completamente basada en eventos que desacopla los ciclos de vida de los diferentes subsistemas del motor. Una buena aproximación para entender la arquitectura es representar como una caja negra el sistema (\textit{Quake3.exe}). Como se puede ver en la Figura \begin{comment}\ref{fig:architectureblackbox} (1!!!!!)\end{comment} 
-	1, el software sólo recibe entradas de red y teclado/ratón, y produce salidas de red y de frames.
+	El motor \textit{id tech 3} y sus antecesores utilizan una arquitectura completamente basada en eventos que desacopla los ciclos de vida de los diferentes subsistemas del motor. Una buena aproximación para entender la arquitectura es representar como una caja negra el sistema (\textit{Quake3.exe}). Como se puede ver en la Figura \ref{figarchitectureblackbox}, el software sólo recibe entradas de red y teclado/ratón, y produce salidas de red y de frames.
 	
 	
 	\begin{center}
 		\begin{figure}[h]
 			\includegraphics[width=1\textwidth]{images/q3_architecture_blackbox}
-			\label{fig:architectureblackbox}
 			\caption{Q3 architecture blackbox}
+			\label{figarchitectureblackbox}
 		\end{figure}
 	\end{center}
 
-	Dentro del sistema se identifican 6 módulos: lógica de juego (\textit{quake3.exe}), rendering (\textit{renderer.lib}), IA (\textit{bot.lib}), game (\textit{game}), cgame (\textit{cgame}) e interfaz de usuario (\textit{q3\_ui}), representados en la Figura 2 \begin{comment}\ref{fig:architecture}\end{comment} 
+	Dentro del sistema se identifican 6 módulos: aplicación principal y lógica de juego (\textit{quake3.exe}), rendering (\textit{renderer.lib}), IA (\textit{bot.lib}), lógica servidora (\textit{game}), lógica cliente (\textit{cgame}) e interfaz de usuario (\textit{q3\_ui}), representados en la Figura 2 \begin{comment}\ref{fig:architecture}\end{comment} 
 
 		\begin{center}
 			\begin{figure}[h]
 				\includegraphics[width=1\textwidth]{images/q3_architecture}
-				\label{fig:architecture}
 				\caption{Q3 architecture}
+				\label{figarchitecture}
 			\end{figure}
 		\end{center}
 	
@@ -249,7 +248,7 @@ void main() // Flappy Bird
 	
 	Cada uno de los inputs recibidos (Teclado, mensaje win32, ratón, socket UDP) es convertido a \textit{event\_t} y encolado en una cola de eventos (\textit{sysEvent\_t eventQue[256]}). Con esta aproximación se puede mantener una bitácora de estos inputs que, junto con otros factores también almacenados, permiten ser reproducidos en orden para recrear bugs de manera consistente. \cite{johncplan}\\
 	
-	En la figura X se identifican dentro de la parte \textit{Common} el administrador de inputs, la cola de eventos y el \textit{event journal} mencionado.
+	En la figura \ref{figarchitecture} se identifican dentro de la parte \textit{Common} el administrador de inputs, la cola de eventos y el \textit{event journal} mencionado.
 	
 	\subsubsection{Separación explícita de cliente y servidor}
 	
@@ -257,7 +256,7 @@ void main() // Flappy Bird
 	
 	En Q3 el servidor es el responsable de mantener el estado de la partida, determinar información de la partida necesitan los clientes y propagarla por la red. Se puede observar en la imagen que \textit{bot.lib} está contenido únicamente dentro de la parte servidora, ya que es también la encargada de proveer la lógica e inputs de los jugadores controlados por la IA.\\
 	
-	El cliente es responsable de predecir dónde están los objetos en cada instante, incluyendo los elementos afectados por la red utilizando una técnica llamada \textit{lag compensation}, y de renderizar la vista para el usuario \,---\, De nuevo, en la figura X se puede observar como\textit{ renderer.lib} está contenido en la parte cliente. \cite{architecture}\\
+	El cliente es responsable de predecir dónde están los objetos en cada instante, incluyendo los elementos afectados por la red utilizando una técnica llamada \textit{lag compensation}, y de renderizar la vista para el usuario \,---\, De nuevo, en la figura  \ref{figarchitecture} se puede observar como\textit{ renderer.lib} está contenido en la parte cliente. \cite{architecture}\\
 	
 	\subsubsection{Eventos desde el punto de vista del código}
 	
@@ -321,18 +320,19 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
     
     Esta máquina virtual realiza los trabajos de culling y predicción antes de llamar a las librerías de OpenGL usando una llamada del sistema Q3 (\textit{CG\_R\_RENDERSCENE}). Cuando Quake.exe recibe esta llamada es cuándo realmente se llama a la función de renderizado de la escena (\textit{RE\_RenderScene}).\cite{unrolled_loop_source}\cite{unrolled_loop}\\   
     
-    En la figura X se puede visualizar esta explicación. En lugar de tener todas las llamadas acopladas y dependientes del mismo ciclo de vida, se aprovecha la arquitectura de mensajes para que cada componente realice su trabajo cuando esté listo para procesarlo. Además, esto implica que Quake3.exe no tiene necesidad de saber qué trabajos va a realizar la \textit{Client Virtual Machine} antes de lanzar el mensaje para hacer el render de la escena.\\
-    
-    
     \begin{center}
     	\begin{figure}[h]
-    		\includegraphics[width=1\textwidth]{images/diagrama}
-    		\label{fig:diagrama}
+    		\includegraphics[width=1\textwidth]{images/diagrama.png}
     		\caption{Q3 architecture blackbox}
+    		\label{figdiagrama}
     	\end{figure}
     \end{center}
     
+    En la figura \ref{figdiagrama} se puede visualizar esta explicación. En lugar de tener todas las llamadas acopladas y dependientes del mismo ciclo de vida, se aprovecha la arquitectura de mensajes para que cada componente realice su trabajo cuando esté listo para procesarlo. Además, esto implica que Quake3.exe no tiene necesidad de saber qué trabajos va a realizar la \textit{Client Virtual Machine} antes de lanzar el mensaje para hacer el render de la escena.\\
+    
+    
 
+  
 	
 	
 	\newpage
@@ -350,8 +350,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	\begin{center}
 		\begin{figure}[h]
 			\includegraphics[width=1\textwidth]{images/q3_network_arch}
-			\label{fig:q3vm}
 			\caption{Q3 architecture virtual machines}
+			\label{figq3network}
 		\end{figure}
 	\end{center}
 
@@ -370,8 +370,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	\begin{center}
 		\begin{figure}[h]
 			\includegraphics[width=1\textwidth]{images/q3_workspace_architecture}
-			\label{fig:q3vm}
 			\caption{Q3 architecture virtual machines}
+			\label{figq3vm}
 		\end{figure}
 	\end{center}
 	
