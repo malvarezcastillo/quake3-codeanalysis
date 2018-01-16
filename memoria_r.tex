@@ -214,12 +214,9 @@ while (!quit)
 \end{lstlisting}
 	
 	
-	En un videojuego, además de hacer el renderizado, se debe tener en cuenta la interactividad con el usuario, que en este caso afectará a muchos más elementos que el movimiento de la cámara. %, ya que el jugador afecta a%
-	Para ello se introduce el concepto del \textit{game-loop}, un bucle que además de ejecutar las tareas de renderizado contiene toda la lógica de control del juego.\\
+	En un videojuego, además de hacer el renderizado, se debe tener en cuenta la interactividad con el usuario, que en este caso afectará a muchos más elementos que la posición de la cámara. Para procesar esta interactividad y reflejar los cambios en las estructuras de datos se introduce el concepto del \textit{game-loop}, un bucle que además de ejecutar las tareas de renderizado contiene toda la lógica de control del juego.\\
 	
 	 Un ejemplo básico de un game-loop sería el caso del videojuego clásico Pong:
-	
-
 	
 		\begin{lstlisting}[style=C, numbers=none]
 void main() // Pong
@@ -251,8 +248,8 @@ void main() // Pong
 }
 	\end{lstlisting}
 	
-	Esta aproximación de game-loop es demasiado básica y limitada para juegos modernos. Aún así, la arquitectura de dichos juegos se basa un game-loop que contiene a su vez una serie de bucles de cada subsistema del motor, pudiendo correr cada uno de esos bucles a un frecuencia distinta del resto. Por ejemplo: en un segundo queremos renderizar 60 fotogramas, pero sólo tenemos que recibir paquetes de red 30 veces por segundo. 
-	
+	Esta aproximación de game-loop es demasiado básica y limitada para juegos modernos. Aún así, la arquitectura de dichos juegos se basa un game-loop que contiene a su vez una serie de bucles de cada subsistema del motor, pudiendo correr cada uno de esos bucles a un frecuencia distinta del resto. Por ejemplo: en un segundo queremos renderizar 60 fotogramas, pero sólo tenemos que recibir paquetes de red 30 veces por segundo. \\
+   
 	Se destacan dos aproximaciones muy frecuentes en el desarrollo de motores de videojuegos:
 	
 	\begin{itemize}
@@ -287,19 +284,17 @@ void main() // Flappy Bird
 		
 		El programador, en este ejemplo, sólo ha tenido que diseñar la lógica de cómo funciona el juego y ha dejado en manos de los subsistemas la ejecución de bajo nivel de los resultados de la interacción del usuario. Los subsistemas utilizados en este caso, y de los que el programador no está obligado a conocer más que sus API's, serían las implementaciones de networking, de audio, de gráficos, de input y de físicas. La mayoría de estas librerías son independientes e intercambiables entre sí, a las que se accede utilizando un patrón facade.
 		
-		Si en el futuro el programador decidiera programar este juego para iOS, este código tendría que adaptar las llamadas de API a las librerías disponibles en iOS, quizá utilizando el \textit{\textbf{patrón adaptador}} para evitar cambiar la lógica principal y los tipos de datos de su sistema.	
+		Si en el futuro el programador decidiera programar este juego para iOS, este código tendría que adaptar las llamadas de API a las librerías disponibles en iOS, quizá utilizando el \textit{\textbf{patrón adaptador}} para evitar cambiar la lógica principal y los tipos de datos de su sistema.\\
 		
 		\item \textit{\textbf{Event-Based Updating}}. En este estilo de implementación todos los subsistemas son capaces de enviar y recibir eventos. Estos eventos son similares a los que se usan en los patrones de interfaces gráficas como MVC. 
 		
 		En el game-loop se han de procesar todos los eventos recibidos en la anterior iteración y distribuirlos a los subsistemas pertinentes para que los procesen. Además, también se debe de encargar de notificar a los subsistemas de en qué instante se encuentra la ejecución del programa. Los eventos recibidos no siempre tienen por qué ser procesados inmediatamente, por lo que cada subsistema debe de tener capacidad para almacenar eventos y en base a la información del bucle principal, ser consciente del instante en el que ha de procesar cada uno de los eventos. 
 		
-		La implementación de este modelo puede ser completa, separando todos los subsistemas, o usarse sólo para ciertos subsistemas, como suele ocurrir en motores en los que se implementó \textit{a posteriori} y en los que era muy difícil desacoplar el subsistema de rendering de otros que dependían de él como: físicas, audio e IA.
+		La implementación de este modelo puede ser completa, separando todos los subsistemas, o usarse sólo para ciertos subsistemas, como suele ocurrir en motores en los que se implementó \textit{a posteriori} y en los que era muy difícil desacoplar el subsistema de rendering de otros que dependían de él como: físicas, audio e IA. \cite{gameenginebook}
 	
 	    A lo largo de este trabajo se comentarán patrones apoyados en esta arquitectura basada en eventos.
 		
 	\end{itemize}	
-
-%INTRODUCRIR BIBLIOGRAFIA LIBRO%	
 	
 	El motor \textit{id tech 3} y sus antecesores utilizan una arquitectura completamente basada en eventos que desacopla los ciclos de vida de los diferentes subsistemas del motor. Una buena aproximación para entender la arquitectura es representar como una caja negra el sistema (\textit{Quake3.exe}). Como se puede ver en la Figura \ref{figarchitectureblackbox}, el software sólo recibe entradas de red y teclado/ratón, y produce salidas de red y de frames.
 	
@@ -312,7 +307,7 @@ void main() // Flappy Bird
 		\end{figure}
 	\end{center}
 
-	Dentro del sistema se identifican 6 módulos: aplicación principal y lógica de juego (\textit{quake3.exe}), rendering (\textit{renderer.lib}), IA (\textit{bot.lib}), lógica servidora (\textit{game}), lógica cliente (\textit{cgame}) e interfaz de usuario (\textit{q3\_ui}), representados en la Figura 2 \begin{comment}\ref{fig:architecture}\end{comment} 
+	Dentro del sistema se identifican 6 módulos: aplicación principal y lógica de juego (\textit{quake3.exe}), rendering (\textit{renderer.lib}), IA (\textit{bot.lib}), lógica servidora (\textit{game}), lógica cliente (\textit{cgame}) e interfaz de usuario (\textit{q3\_ui}), representados en la Figura \ref{figarchitecture}
 
 		\begin{center}
 			\begin{figure}[h]
@@ -327,6 +322,8 @@ void main() // Flappy Bird
 	\subsubsection{Bitácora de inputs para facilitar las pruebas}
 	
 	Cada uno de los inputs recibidos (Teclado, mensaje win32, ratón, socket UDP) es convertido a \textit{event\_t} y encolado en una cola de eventos (\textit{sysEvent\_t eventQue[256]}). Con esta aproximación se puede mantener una bitácora de estos inputs que, junto con otros factores también almacenados, permiten ser reproducidos en orden para recrear bugs de manera consistente. \cite{johncplan}\\
+    
+    Este diseño de arquitectura, basada en inputs de diferentes fuentes normalizados a eventos de sistema, se define formalmente como un patrón reactor, que es un patrón arquitectural para resolver el problema de como atender peticiones concurrentes a través de señales y manejadores de señales.\\
 	
 	En la figura \ref{figarchitecture} se identifican dentro de la parte \textit{Common} el administrador de inputs, la cola de eventos y el \textit{event journal} mencionado.
 	
@@ -336,7 +333,7 @@ void main() // Flappy Bird
 	
 	En Q3 el servidor es el responsable de mantener el estado de la partida, determinar información de la partida necesitan los clientes y propagarla por la red. Se puede observar en la imagen que \textit{bot.lib} está contenido únicamente dentro de la parte servidora, ya que es también la encargada de proveer la lógica e inputs de los jugadores controlados por la IA.\\
 	
-	El cliente es responsable de predecir dónde están los objetos en cada instante, incluyendo los elementos afectados por la red utilizando una técnica llamada \textit{lag compensation}, y de renderizar la vista para el usuario \,---\, De nuevo, en la figura  \ref{figarchitecture} se puede observar como\textit{ renderer.lib} está contenido en la parte cliente. \cite{architecture}\\
+	El cliente es responsable de predecir dónde están los objetos en cada instante, incluyendo los elementos afectados por la red utilizando una técnica llamada \textit{lag compensation}, y de renderizar la vista para el usuario \,---\, De nuevo, en la figura  \ref{figarchitecture} se puede observar como \textit{renderer.lib} está contenido en la parte cliente. \cite{architecture}\\
 	
 	\subsubsection{Eventos desde el punto de vista del código}
 	
@@ -382,7 +379,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
       // Codigo de cliente (CL)
       CL_Frame
       {
-        CL_SendCmd // Eenviar los comandos al servidor usando la cola de eventos.
+        CL_SendCmd // Enviar los comandos al servidor usando la cola de eventos.
         
         SCR_UpdateScreen
         VM_Call( cgvm, CG_DRAW_ACTIVE_FRAME); // Enviar mensajes a la Client Virtual Machine (encargada de hacer las predicciones).
@@ -409,16 +406,19 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
     \end{center}
     
     En la figura \ref{figdiagrama} se puede visualizar esta explicación. En lugar de tener todas las llamadas acopladas y dependientes del mismo ciclo de vida, se aprovecha la arquitectura de mensajes para que cada componente realice su trabajo cuando esté listo para procesarlo. Además, esto implica que Quake3.exe no tiene necesidad de saber qué trabajos va a realizar la \textit{Client Virtual Machine} antes de lanzar el mensaje para hacer el render de la escena.\\
-    
-    
 
+    Dentro del diseño de la arquitectura de Q3 encontramos un claro ejemplo de antipatrón arquitectural:
+    
+    \subsection{Vendor Lock-in}
+    
+    Se trata de un antipatrón de arquitectura, en el que parte de la arquitectura del sistema depende completamente de librerías externas que podrían causar problemas durante el mantenimiento del código en futuras iteraciones, introducir fallos sobre los que no se tiene control y limitar la portabilidad del software.\\
+    
+    Para el renderizado de los graficos en este sistema se ha utilizado OpenGL y, a pesar de que no está acoplado con el código, el motor depende de la existencia de la librería. En el caso de que un sistema no tenga soporte para OpenGL, habría que portar toda la capa de integración al correspondiente sistema de renderizado.  \\
   
 	
 	
 	\newpage
 	\section{Diseño de Software}
-	
-
 	
 	El software de Quake III Arena está considerado un buen ejemplo de programación estructurada, que gira en torno a una adecuada definición de funciones y a un equilibrio respecto a la complejidad de las mismas. En la versión que se está analizando en esta memoria, se puede observar que el código está bien diseñado y estructurado, pudiendo tener una visión global de su estructura.\\
 	
@@ -439,9 +439,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	
 	Simplificando mucho el funcionamiento del networking, los clientes no envían y reciben estados completos, sino que guardan los últimos estados con el fin de sólo enviar y recibir la diferencia entre estados, omitiendo información repetida, sólo actualizando lo necesario. Si fuera necesario, se podría mandar el estado completo en lugar de una actualización parcial.\\
 	
-	La ventaja de esta implementación reside en la posibilidad de enviar la diferencia entre estados arbitrariamente antiguos. Es decir, si un cliente no recibió una actualización de un estado (por problemas de conectividad, por ejemplo), no es viable re-enviar la paquetería de ese estado y, de hecho, no sería posible ya que toda la paquetería de red en Q3 es basada en UDP. En su lugar, se ignora esa actualización y en la siguiente actualización el cliente reportará al servidor el estado de su mundo, el servidor simplemente manda la diferencia entre el estado maestro y su estado, sin importarle cuántos snapshots de retraso tenga el cliente (hasta el límite de snapshots) y sin necesidad de implementar control sobre los estados concretos. Si la diferencia es suficientemente grande, podría provocar un reenvío del estado completo.
-	
-	%Introducir algo de código de networking?
+	La ventaja de esta implementación reside en la posibilidad de enviar la diferencia entre estados arbitrariamente antiguos. Es decir, si un cliente no recibió una actualización de un estado (por problemas de conectividad, por ejemplo), no es viable re-enviar la paquetería de ese estado y, de hecho, no sería posible ya que toda la paquetería de red en Q3 es basada en UDP. En su lugar, se ignora esa actualización y en la siguiente actualización el cliente reportará al servidor el estado de su mundo, el servidor simplemente manda la diferencia entre el estado maestro y su estado, sin importarle cuántos snapshots de retraso tenga el cliente (hasta el límite de snapshots) y sin necesidad de implementar control sobre los estados concretos. Si la diferencia es suficientemente grande, podría provocar un reenvío del estado completo.\\
 
 	\subsection{Command pattern: Quake Virtual Machines}
 	
@@ -478,7 +476,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	
 		\begin{lstlisting}[style=C, numbers=none]
 // run the game simulation in chunks
-while ( sv.timeResidual >= frameMsec ) {
+while ( sv.timeResidual >= frameMsec ) 
+{
 	sv.timeResidual -= frameMsec;
 	svs.time += frameMsec;
 	
@@ -505,32 +504,20 @@ while ( sv.timeResidual >= frameMsec ) {
 	
 	\begin{lstlisting}[style=C, numbers=none]
 void CG_TargetCommand_f( void ) {
-int		targetNum;
-char	test[4];
-
-targetNum = CG_CrosshairPlayer();
-if (!targetNum ) {
-return;
-}
-
-trap_Argv( 1, test, 4 );
-trap_SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
+    int		targetNum;
+    char	test[4];
+    
+    targetNum = CG_CrosshairPlayer();
+    if (!targetNum ) {
+    return;
+    }
+    
+    trap_Argv( 1, test, 4 );
+    trap_SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
 }
 	\end{lstlisting}
 	
-	
-	
-	
-A pesar de que es un código que llama la atención por su buena estructura, también se debe de exponer que contiene algunos antipatrones en él.\\
-
-Por ejemplo:\\
-
-\subsection{Vendor Lock-in}
-
-Se trata de un antipatrón de arquitectura, en el que se puede observar bloqueo por parte de proveedor. Esto ocurrenen sistemas que dependen, en gran medida, de arquitecturas propietarias.
-
-Para el renderizado de los graficos en este sistema se ha utilizado OpenGL y, a pesar de que no está acoplado con el código, el motor depende de la existencia de la librería. En el caso de que un sistema no tenga soporte para OpenGL, habría que portar toda la capa de integración al correspondiente sistema de renderizado.  \\
-
+A pesar de que es un código que llama la atención por su buena estructura en comparación con otros videojuegos implementados en su época, también se puede hallar algunos antipatrones arquitecturales (comentados en secciones anteriores) como algunos de diseño:\\
 
 \subsection{The blob}
 
@@ -538,18 +525,26 @@ Se trata de un antipatrón de diseño, en el que el diseño de estilo de procedi
 
 El código de Q3 está separado en unidades funcionales, de manera que se evita crear ficheros o sistemas monolíticos como los que define este antipatrón.
 
-Una excepción a estas buenas prácticas se puede ver en la parte de IA. Durante el desarrollo de Q3, el programador líder de \textit{id Software} delegó la tarea de desarrollar los \textit{bots} a un desarrollador de la compañía, que no consiguió entregar un trabajo finalizado. Los \textit{bots} no tenían el comportamiento esperado, si no que eran muy predecibles y con movimientos antinaturales. En un juego basado en partidas multijugador, esto era una parte importante. Para solucionar este bloqueo, \textit{id Software} decidió dejar este trabajo en manos de Jean-Paul van Waveren (a.k.a Mr.Elusive), que integró toda la librería de \textit{bots} en un sistema completamente separado y cerrado que se decidió colocar dentro de la arquitectura en la parte de servidor, pero fuera de la VM. Para comunicarse con el juego (VM) se usaron \textit{syscalls}. Esto es un claro ejemplo del antipatrón de \textit{The blob}, ya que toda esta lógica debería de estar integrada y repartida dentro las unidades funcionales del código de la VM.
+Una excepción a estas buenas prácticas se puede ver en la parte de IA. Durante el desarrollo de Q3, el programador líder de \textit{id Software} delegó la tarea de desarrollar los \textit{bots} a un desarrollador de la compañía, que no consiguió entregar un trabajo finalizado. Los \textit{bots} no tenían el comportamiento esperado, si no que eran muy predecibles y con movimientos antinaturales. \\
+
+En un juego basado en partidas multijugador, esto era una parte importante. Para solucionar este bloqueo, \textit{id Software} decidió dejar este trabajo en manos de Jean-Paul van Waveren (a.k.a Mr.Elusive), que integró toda la librería de \textit{bots} en un sistema completamente separado y cerrado que se decidió colocar dentro de la arquitectura en la parte de servidor, pero fuera de la VM, como se ve señalado en la figura \ref{fig:bot}
+Para comunicarse con el juego (VM) se usaron \textit{syscalls}. Esto es un claro ejemplo del antipatrón de \textit{The blob}, ya que toda esta lógica debería de estar integrada y repartida dentro las unidades funcionales del código de la VM.
 
 	\begin{center}
 	\begin{figure}[h]
 		\includegraphics[width=1\textwidth]{images/bot}
+        \caption{Localización de la librería de Bot.lib}
 		\label{fig:bot}
-		\caption{Bot.lib}
 	\end{figure}
 \end{center}
 
 A pesar de ser un antipatrón, el código está muy bien desarrollado dentro de su propio sistema y el creador hizo un artículo de investigación en el que entra en detalles sobre la implementación.\cite{quake3}\\
 
+\subsection{The Golden Hammer}
+
+Para el desarrollo de Q3 se decidió utilizar el lenguaje C, como en todos los títulos anteriores desarrollados en \textit{id software}, lo cual presentó multiples retos durante el complejo desarrollo del mismo. Muchos de estos problemas podrían haberse solucionado con abastracciones más potentes halladas en otros lenguajes disponibles en ese momento, como C++.\\
+
+El antipatrón \textit{Golden Hammer} en este caso, sería el uso de C sin haber previamente analizado otros candidatos debido a la gran predisposición del equipo de desarrollo a utilizar este lenguaje.\\
 
 	
 	\section{Calidad del Software}
@@ -560,14 +555,45 @@ A pesar de ser un antipatrón, el código está muy bien desarrollado dentro de 
     Respecto al performance en Q3, se incluyen varias herramientas\textit{ in-game }para medir todo tipo de parámetros relacionados. Se pueden distinguir entre dos grandes grupos: las mediciones sobre el performance gráfico (como los fotogramas por segundo y \textit{frame time}) y las mediciones sobre la red, accesibles mediante la variable \textit{CG\_LAGOMETER}. Con el Lag-o-Meter se pueden obtener gráficas sobre el estado de la conexión entre el cliente y el servidor, de esta manera podrían observarse cuellos de botella o problemas en los protocolos de red implementados.
 	
 	\section{Estado de la accesibilidad en el proyecto}
-    Al ser un juego de acción rápida contra oponentes por Internet no existe ningún tipo de consideración para la accesibilidad de ningún tipo. Aún así, existen algunas features que se podrían haber incluído para mejorar la accesibilidad del software como: paletas de colores,  ajustes de brillo y contraste extremos para usuarios con problemas de visión, e indicadores visuales y subtítulos para usuarios con problemas auditivos.
+    Durante el desarrollo de Q3 no se tuvo en consideración la accesibilidad de los usuarios más allá del nivel más básico durante el diseño de la interfaz, no teniendo en cuenta ninguna necesidad especial de los usuarios. \\
+    
+    Si bien se pueden encontrar aspectos, principios y normas de accesibilidad implementadas en Q3, como la navegación por teclado, ninguna de ellas fue diseñada con el objetivo de accesibilidad en la mente, sino que casualmente se implementaron de una manera que favorece la accesibilidad en un esfuerzo general para mejorar la experiencia de uso de todos los usuarios.\\
+    
+    Q3 es un videojuego de disparos en primera persona, este tipo de juegos tradicionalmente excluyen completamente a todos los usuarios con problemas graves de visión, no habiendo una solución universal para mejorar su accesibilidad. Respecto a otros tipos de DISCAPACIDADES(INTRODUCIR EUFEMISMO) como auditiva, motriz o intelectual, no impiden el uso del software, pero afectan al usuario limitándo ciertos aspectos del juego.\\
+    
+    En el apartado siguiente se comentarán una serie de modificaciones posibles para mejorar la experiencia de estos usuarios.
+    
 	
-	\section{Conclusiones}
-	TODO\\
+	\section{Propuestas de mejora y conclusión}
+	
+    \subsection{Diseño y arquitectura}
+    A lo largo de la memoria ya se hicieron comentarios, conclusiones y propuestas acerca de las decisiones de diseño halladas en Q3, aún así, se comentarán detalles de los puntos más discutibles en este apartado.\\
+    
+    En general el desarrollo de Q3 cumple el objetivo del proyecto: Entregar un juego finalizado listo para ser distribuído sin fallos graves. Para alcanzar este objetivo se tomaron ciertos atajos en el diseño y en la arquitectura pero, desde el punto de vista del desarrollo ágil, podríamos no considerarlos problemas, sino decisiones de diseño para el presente. En el caso de los desarrolladores líderes, han demostrado gran capacidad para refactorizar y extender sus módulos sin ningún problema, rehaciendo la arquitectura del motor desde cero por tercera vez en este título.\\
+    
+    La motivación principal para desarrollar este motor de esta manera es la seguridad de que cuando necesiten avanzar la tecnología será un salto cuantitativo que requerirá reescribir la arquitectura entera, en este caso fue así, y la tecnología \textit{id tech 3} sólo fue utilizada en este título comercial por parte de \textit{id software.}
+    
+    No hubiera sido viable realizar el desarrollo de una API de rendering propia para mitigar los efectos del antipatrón \textit{vendor lock-in}, sin embargo, se podría haber considerado implementar las APIs de Microsoft (Direct X) además del elegido OpenGL. Para esto, se podría haber utilizado un patrón \textit{facade} para abastraer la librería de rendering de las llamadas de bajo nivel que habría que realizar a las distintas APIs (Actualmente, además de OpenGL y Direct X, habría que considerar Vulkan).\\
+    
+    Como comentamos en su apartado, la inclusión un \textit{blob} para realizar las tareas de IA fue fruto del fracaso al alcancar el hito de entrega en el proyecto y por eso se introdujo esta librería de manera distinta a la originalmente pensada y adecuada, que, suponemos que sería su inclusión dentro del módulo \textit{game}, en el código de las virtual machine del servidor.\\
+    
+    Aún así, otra solución posible para la integración de IA, utilizada en otros videojuegos, es el considerar a los jugadores de la máquina como jugadores reales y comunicar sus acciones via las mismas llamadas que realizan los jugadores reales. Es decir, añadir un nuevo input virtual para que la IA pueda controlar a sus personajes y recibir información del estado de la partida a través de los output estándar.\\
+    
+    Respecto al antipatrón \textit{The Golden Hammer} uno de los argumentos que dieron los programadores a posteriori para elegir C sobre C++ fue la eficiencia de C sobre el overhead introducido por C++. No obstante, este argumento no es suficiente para justificar no utilizar un lenguaje orientado a objetos, que se convirtió en el estandar defacto en toda la industria en los años siguientes gracias a sus potentes abstracciones.\\
+    
+    
+    \subsection{Accesibilidad}
+    Como propuesta de mejora para la accesibilidad, existen algunas features que se podrían haber incluído: paletas de colores para jugadores con daltonismo que no sean capaces de diferenciar los diferentes actores de la partida,  ajustes de brillo y contraste extremos para usuarios con deficiencias visuales graves. \\
+    
+    Para otros problemas de accesibilidad no relacionados con la visión, se podrían considerar implementar: indicadores visuales y subtítulos para usuarios con problemas auditivos, que comuniquen los sonidos no representados en pantalla. Configuración personalizada de métodos de input y remapping de controles para los jugadores con movilidad reducida (Por ejemplo, poder integrar todos los controles en un sólo brazo). Para las dificultades relacionadas con accesibilidad intelectual, los diseñadores del software pueden incluir tutoriales sobre las mecánicas del juego y modos de asistencia para el jugador (Por ejemplo, para un niño pequeño, ayudarle a apuntar con el ratón, ya que es una habilidad que requiere coordinación oculo-manual muy desarrollada). %CONVERTIR A ITEMIZE
+    
+    \subsection{Conclusión}
+    %HACER UNA CONCLUSION QUE TE SALGA DEL CORAZÓN
+    
     
 	
 	\begin{thebibliography}{9}
-		
+		\bibitem{gameenginebook}Game Engine Architecture. Second Edition. \emph{Jason Gregory}. ISBN: 1466560010 9781466560017\\
 		\bibitem{johnromeroyoutube}The Early Days of Id Software. \emph{John Romero}. URL: \url{https://www.youtube.com/watch?v=KFziBfvAFnM}\\
 		\bibitem{quake3}Quake III Arena. \emph{Quake Wikia}. URL: \url{http://quake.wikia.com/wiki/Quake_III_Arena}\\
 		\bibitem{idtech3} id tech 3. \emph{Giant Bomb}. URL: \url{https://www.giantbomb.com/id-tech-3/3015-1918/}\\
