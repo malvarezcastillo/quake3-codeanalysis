@@ -11,12 +11,20 @@
 \usepackage{times}
 \usepackage[toc,page]{appendix}
 
+\usepackage[strict]{changepage}
+\usepackage{framed}
+
+
 \usepackage{verbatim} % comentarios
 
+\usepackage{xcolor}
 \usepackage{color}
 \definecolor{gray97}{gray}{.97}
 \definecolor{gray75}{gray}{.75}
 \definecolor{gray45}{gray}{.45}
+
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{formalshade}{rgb}{0.95,0.95,1}
 
 \usepackage{listings}
 \lstset{ frame=Ltb,
@@ -57,6 +65,22 @@
 }
 
 
+\newenvironment{formal}{%
+	\def\FrameCommand{%
+		\hspace{1pt}%
+		{\color{darkblue}\vrule width 2pt}%
+		{\color{formalshade}\vrule width 4pt}%
+		\colorbox{formalshade}%
+	}%
+	\MakeFramed{\advance\hsize-\width\FrameRestore}%
+	\noindent\hspace{-4.55pt}% disable indenting first paragraph
+	\begin{adjustwidth}{}{7pt}%
+		\vspace{2pt}\vspace{2pt}%
+	}
+	{%
+		\vspace{2pt}\end{adjustwidth}\endMakeFramed%
+}
+
 
 \begin{document}
 	
@@ -69,7 +93,7 @@
 			
 			\vspace{2.5cm}
 			
-			\textbf{\Large Diseño Software un Quake III Arena}\\
+			\textbf{\Large Diseño Software de Quake III Arena}\\
 			\vspace{0.5cm}
 			\large{Máster Universitario en Ingeniería Informática}\\
 		\end{center}
@@ -100,14 +124,70 @@
 	
 	El estado actual del proyecto es el mismo que cuando se desplegó la versión final del juego en 1999 (el código liberado en 2005 compila una versión exacta a la última versión disponible de Q3 en el momento). Aunque existen clones de este proyecto cuyo código ha sido limpiado sin introducir nuevos cambios o arreglar errores, se estudiará el código tal y como fue subido.\\
 	
-	goals, actors, status, releases \cite{example}\\
 	
 	\section{Metodología de Desarrollo y Herramientas}
-	https://github.com/id-Software/Quake-III-Arena\\
-	Importante -> https://www.youtube.com/watch?v=KFziBfvAFnM\\
+	A diferencia del código principal del juego, las herramientas usadas para el desarrollo de Q3 nunca fueron liberadas. En esta época era muy habitual programar herramientas a medida para los desarrollos de tu motor (debugging, creación de mapas, importación y exportación de modelos, etc.). El juego final, al igual que sus predecesores, era muy fácil de modificar, los \textit{assets} del juego estaban claramente separados del código ejecutable y era posible cargar tus propios ficheros con modificaciones de cualquier tipo. El afán de crear este contenido hizo que aparecieran herramientas hechas por la comunidad que sustituían aquellas creadas internamente para el desarrollo, muchas de ellas son proyectos software libre de una complejidad bastante alta.\\
+	
+	\textit{id software} fue fundado por cuatro personas, y sus equipos de trabajo siempre fueron de tamaño reducido, dada la actitud vanguardista constante de la compañía las metodologías usadas no se basaban en nada existente, sino que fueron buscando sus propios principios y metodología a medida que realizaban proyectos, deshechando aquellos que no funcionaban para ellos.\\
+	
+	En una charla reciente de uno de los fundadores de \textit{id software}, John Romero, se detallan los principios que fueron descubriendo e integrando en su metodología de trabajo mediante una serie de citas, incluyendo el desarrollo de Q3. La mayoría de estos principios fueron consolidados antes del desarrollo de Q3, pero todos ellos seguían siendo la guía para el desarrollo de videojuegos en el proyecto de Q3. Analizamos y comentamos las citas a continuación:\\
+	
+	\begin{formal}
+		\textit{No prototypes. Just make the game. Polish as you go. Don't depend on polish happening later. Always mantain constantly shippable code}
+	\end{formal}
+	El primer principio en el que se basaron los fundadores para competir en el mercado de los videojuegos con un equipo tan pequeño. Cada iteración del código apuntaba hacia la dirección del código entregable, es decir, cualquier parte desarrollada debía tener la complejidad suficiente para ser incluída en un producto entregable.
+	
+	\begin{formal}
+		\textit{ It's incredibly important that your game can always be run by your team. Bulletproof your engine by providing defaults upon load failure.}
+	\end{formal}
+	Todos los juegos clásicos de \textit{id software} se regían por este principio, configuraciones específicas nunca deberían ser obligatorias. Si uno ejecuta Q3 (O cualquier juego clásico de \textit{id}) y pulsas enter en todos los menús (y ninguna tecla más) eres puesto en una partida contra la máquina con valores por defecto, sin necesidad de configurar nada.
+	
+	\begin{formal}
+		\textit{Keep your code absolutely simple. Keep looking at your functions and figure out how you can simplify further.}
+	\end{formal}
+	Uno de los principios más revolucionarios para la época (1989), refactorizar código con el objetivo de constantemente simplificar y alcanzar un rendimiento mayor, ofreciendo una experiencia superior a la ofrecida por otros equipos más conformistas.
+	
+	\begin{formal}
+		\textit{Great tools help make great games. Spend as much time on tools as possible.}      
+	\end{formal}
+	Desde muy pronto identificaron la necesidad de que todos los usuarios implicados en el proceso de desarrollo tuvieran herramientas que facilitasen su trabajo; los creadores de niveles tenían QuakeEd, un editor de mapas muy complejo. Los artistas disponían de herramientas para facilitar el flujo de trabajo en texturas y modelos, y los desarrolladores tenían entornos de pruebas y herramientas de debugging muy avanzadas (demo playback, virtual machines).\\
+	El diseño del software se vio afectado por este principio, siempre desarrollando las tecnologías con la necesidad de poder utilizar potentes y flexibles herramientas para generar contenido o acelerar el desarrollo.
+	
+	\begin{formal}
+		\textit{We are our own best testing team and should never allow anyone else to experience bugs or see the game crash. Don't waste other's time. Test thoroughly before checking in your code.}        
+	\end{formal}
+	Aunque hoy en día existen departamentos enteros de QA, era normal que los propios desarrolladores realizasen todas las pruebas sobre sus sistemas. Aún así, podemos identificar una versión primitiva de lo que actualmente son los \textit{pull request} y revisión de código, ya que el principio animaba a los desarrolladores a sólo entregar versiones bien probadas para integrar con el resto del equipo.
+	
+	\begin{formal}
+		\textit{As soon as you see a bug, you fix it. Do not continue on. If you don't fix your bugs your new code will be built on a buggy codebase and ensure an unstable foundation.}        
+	\end{formal}
+	Una extensión del anterior principio, nunca entregar código en el que somos conscientes que hay errores, ya que estos pueden confundirse por decisiones de diseño deliberadas, y acumular errores en el diseño general.
+	
+	\begin{formal}
+		\textit{Use a development system that is superior to your target.}       
+	\end{formal}
+	En 1993, durante el desarrollo de Doom, se decidió utilizar equipos de trabajo distintos a los equipos de prueba. Esto es una práctica muy común a día de hoy, pero en su momento era normal desarrollar con sistemas con la misma potencia disponible por los consumidores del software. Dar el salto a sistemas más potentes permitió acelerar los procesos de desarrollo y programar herramientas más ambiciosas.
+	
+	\begin{formal}
+		\textit{Write your code for this game only - not for a future game. You're going to be writing new code later because you'll be smarter.}        
+	\end{formal}
+	Similar al principio de escribir código para el presente característico de XP. Es preferible resolver los problemas actuales en lugar de pensar en otros que aún no han surgido.
+	
+	\begin{formal}
+		\textit{Try to code transparently. Tell your lead and peers exactly how you are going to solve your current task and get feedback and advice. Do not treat game programming like each coder is a black box. The project could go off the rails and cause delays.}        
+	\end{formal}
+	Desde el principio en \textit{id software} se trabajó con un ambiente colaborativo, muy distinto al habitual paradigma de tener desarrolladores completamente independientes trabajando solos en proyectos completos. Saber en qué punto del proyecto están tus compañeros ayuda a identificar bloqueos y problemas mucho antes de la fecha límite.\\
+	
+	\begin{formal}
+		\textit{Programming is a creative art form based in logic. Every programmer is different and will code differently. It's the output that matters.}
+	\end{formal}
+	Soportar diferentes estilos de programación sólo funciona en equipos muy reducidos como este caso, pero es un principio poco recomendable cuando un proyecto tiene una duración más larga o un equipo más grande. \\
+	\\
+	En definitiva, podemos concluir que la metodología utilizada era una versión primitiva, casera e improvisada de Extreme Programming, muchos de los fundamentales aspectos de XP se ven reflejados en la filosofía de \textit{id software}. Probablemente podrían haber integrado con facilidad algunas técnicas modernas como programación por parejas y revisiones de código, así como control de versiones, con el fin de mejorar sus procesos de desarrollo.
+	
 	
 	\section{Arquitectura de Software: Patrones y Antipatrones}
-	patterns and anti-patterns\\
+
 	La gran mayoría de aplicaciones están basadas en sistemas 2D que sólo requieren actualizar partes de la vista en cada momento. Cuando nos referimos a aplicaciones 3D, estas arquitecturas clásicas no son compatibles ya que, para dar sensación de fluidez y continuidad, el software debe generar una serie de frames cada segundo de manera constante. Incluso cuando el software no está haciendo ningún input, se produce el output de los frames. \\
 	
 	La arquitectura común de todos los aplicativos 3D es el render-loop:
@@ -323,7 +403,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
     \begin{center}
     	\begin{figure}[h]
     		\includegraphics[width=1\textwidth]{images/diagrama.png}
-    		\caption{Q3 architecture blackbox}
+    		\caption{Diagrama de flujo VM}
     		\label{figdiagrama}
     	\end{figure}
     \end{center}
@@ -344,7 +424,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	
 	El desarrollo ha sido realizado íntegramente utilizando el lenguaje C \,---\,es decir, un lenguaje no orientado a objetos \,---\, por lo que no se pueden encontrar patrones de diseño software tal y como se está acostumbrado a encontrarlos. Pero esto no implica que no puedan estar presentes a lo largo del código. Se ha intentado localizar algunos conocidos como el \textit{memento}, \textit{command} y \textit{interpreter}, y a continuación se expondrá la implementación concreta de ellos:\\
 	
-    \subsubsection{Memento Pattern: Arquitectura de Red basada en Snapshots}
+    \subsection{Memento Pattern: Arquitectura de Red basada en Snapshots}
 	Para coordinar los estados de la partida en el servidor, con el fin de sincronizar todos los clientes y generar estados consistentes basándose en la interacción de los mismos, Q3 utiliza una implementación del \textit{patrón memento}.\\
 	
 	\begin{center}
@@ -363,7 +443,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	
 	%Introducir algo de código de networking?
 
-	\subsubsection{Command pattern: Quake Virtual Machines}
+	\subsection{Command pattern: Quake Virtual Machines}
 	
 	Por motivos de rendimiento y portabilidad, la lógica del juego en Q3 (y antiguos Quakes) se ejecuta encapsulada en las llamadas Quake Virtual Machines, que son un sistema similar a un `Sandbox' que limita las instrucciones que se pueden utilizar y cómo se ejecutan. Su comportamiento es similar a la JVM respecto a que el código escrito para Q3VM corre en todos los sistemas que tengan Q3VM interpreter. \cite{q3vm}\\
 	
@@ -416,7 +496,7 @@ while ( sv.timeResidual >= frameMsec ) {
 	Además de utilizar este command pattern para ejecutar operaciones implementadas en código ejecutable por la Q3VM, las Q3VM también son capaces de ejecutar bytecode compilado en instrucciones x86 y código compilado para dll de Windows. \cite{q3vmbb}
 	
 	
-		\subsubsection{Interpreter pattern: Quake Console}
+		\subsection{Interpreter pattern: Quake Console}
 	Una de las herramientas más potentes integradas en Q3 es la consola del desarrollador. Con ella el usuario puede introducir comandos para afectar a variables internas y configuraciones. Todas las operaciones de menús tienen un equivalente accesible por la consola, aunque su utilidad se extiende más allá, permitiendo incluso ser utilizada para mostrar mensajes informativos al usuario durante la partida de manera dinámica y estándar.\\
 	
 	Para conseguir esto se hace uso de un patrón interpreter para procesar el comando y sus parámetros, y convertirlos en las instrucciones a ejecutar para modificar las propiedades del motor pertinentes.\cite{console_source}\cite{consolecmd_source}\\
@@ -445,6 +525,32 @@ A pesar de que es un código que llama la atención por su buena estructura, tam
 
 Por ejemplo:\\
 
+\subsection{Vendor Lock-in}
+
+Se trata de un antipatrón de arquitectura, en el que se puede observar bloqueo por parte de proveedor. Esto ocurrenen sistemas que dependen, en gran medida, de arquitecturas propietarias.
+
+Para el renderizado de los graficos en este sistema se ha utilizado OpenGL y, a pesar de que no está acoplado con el código, el motor depende de la existencia de la librería. En el caso de que un sistema no tenga soporte para OpenGL, habría que portar toda la capa de integración al correspondiente sistema de renderizado.  \\
+
+
+\subsection{The blob}
+
+Se trata de un antipatrón de diseño, en el que el diseño de estilo de procedimiento conduce a un objeto con la mayor parte de las responsabilidades, mientras que la mayoría de los demás objetos solo contienen datos o ejecutan procesos simples. La solución incluye la refacturación del diseño para distribuir las responsabilidades de manera más uniforme y aislar el efecto de los cambios.
+
+El código de Q3 está separado en unidades funcionales, de manera que se evita crear ficheros o sistemas monolíticos como los que define este antipatrón.
+
+Una excepción a estas buenas prácticas se puede ver en la parte de IA. Durante el desarrollo de Q3, el programador líder de \textit{id Software} delegó la tarea de desarrollar los \textit{bots} a un desarrollador de la compañía, que no consiguió entregar un trabajo finalizado. Los \textit{bots} no tenían el comportamiento esperado, si no que eran muy predecibles y con movimientos antinaturales. En un juego basado en partidas multijugador, esto era una parte importante. Para solucionar este bloqueo, \textit{id Software} decidió dejar este trabajo en manos de Jean-Paul van Waveren (a.k.a Mr.Elusive), que integró toda la librería de \textit{bots} en un sistema completamente separado y cerrado que se decidió colocar dentro de la arquitectura en la parte de servidor, pero fuera de la VM. Para comunicarse con el juego (VM) se usaron \textit{syscalls}. Esto es un claro ejemplo del antipatrón de \textit{The blob}, ya que toda esta lógica debería de estar integrada y repartida dentro las unidades funcionales del código de la VM.
+
+	\begin{center}
+	\begin{figure}[h]
+		\includegraphics[width=1\textwidth]{images/bot}
+		\label{fig:bot}
+		\caption{Bot.lib}
+	\end{figure}
+\end{center}
+
+A pesar de ser un antipatrón, el código está muy bien desarrollado dentro de su propio sistema y el creador hizo un artículo de investigación en el que entra en detalles sobre la implementación.\cite{quake3}\\
+
+
 	
 	\section{Calidad del Software}
     El software se distribuyó en una única release, ofreciendo el código fuente del motor y unas breves líneas de cómo compilar para Windows, Linux y Mac. No se proporciona más documentación que este breve \textit{README}, aunque la gente que ha trabajado con este código liberado dice no haber tenido problema para familiarizarse con el código usando los comentarios y la claridad del estilo utilizado, con ficheros y clases bien diferenciadas.\\
@@ -462,11 +568,11 @@ Por ejemplo:\\
 	
 	\begin{thebibliography}{9}
 		
-		\bibitem{example}Google \emph{Ejemplo Bibliografía}. URL: \url{http://www.google.com}\\
-		\bibitem{quake3}Quake III Arena \emph{Quake Wikia}. URL: \url{http://quake.wikia.com/wiki/Quake_III_Arena}\\
-		\bibitem{idtech3} id tech 3 \emph{Giant Bomb}. URL: \url{https://www.giantbomb.com/id-tech-3/3015-1918/}\\
-		\bibitem{sourcecode} Quake III Arena Source Code \emph{Github}. URL: \url{https://github.com/id-Software/Quake-III-Arena}\\
-		\bibitem{ioquake3} ioquake3 \emph{ioquake3}. URL: \url{https://ioquake3.org/}
+		\bibitem{johnromeroyoutube}The Early Days of Id Software. \emph{John Romero}. URL: \url{https://www.youtube.com/watch?v=KFziBfvAFnM}\\
+		\bibitem{quake3}Quake III Arena. \emph{Quake Wikia}. URL: \url{http://quake.wikia.com/wiki/Quake_III_Arena}\\
+		\bibitem{idtech3} id tech 3. \emph{Giant Bomb}. URL: \url{https://www.giantbomb.com/id-tech-3/3015-1918/}\\
+		\bibitem{sourcecode} Quake III Arena Source Code. \emph{Github}. URL: \url{https://github.com/id-Software/Quake-III-Arena}\\
+		\bibitem{ioquake3} ioquake3. \emph{ioquake3}. URL: \url{https://ioquake3.org/}
         \bibitem{johncplan} John Carmack's 14 Oct 1998 .plan (Archived from original). \emph{John Carmack}. URL: \url{https://raw.githubusercontent.com/ESWAT/john-carmack-plan-archive/master/by_day/johnc_plan_19981014.txt}
 		\bibitem{architecture} Quake 3 Source Code Review. \emph{Fabien Sanglard}. URL: \url{http://fabiensanglard.net/quake3/index.php}
 		\bibitem{unrolled_loop_source} Quake 3 Main. \emph{id software}. URL: \url{https://raw.githubusercontent.com/id-Software/Quake-III-Arena/master/code/win32/win_main.c}
@@ -477,7 +583,8 @@ Por ejemplo:\\
         \bibitem{q3vmserver} Quake 3 Server VM. \emph{id software}. URL: \url{https://raw.githubusercontent.com/id-Software/Quake-III-Arena/master/code/cgame/cg_public.h}
         \bibitem{q3vmbb} Quake 3 Virtual Machine. \emph{Fabien Sanglard}. URL: \url{http://fabiensanglard.net/quake3/qvm.php}
 		\bibitem{console_source} Quake 3 Console. \emph{id software}. URL: \url{https://raw.githubusercontent.com/id-Software/Quake-III-Arena/master/code/client/cl_console.c}
-		\bibitem{consolecmd_source} Quake 3 Console Commands. \emph{id software}. URL: \url{https://raw.githubusercontent.com/id-Software/Quake-III-Arena/master/code/cgame/cg_consolecmds.c}		
+		\bibitem{consolecmd_source} Quake 3 Console Commands. \emph{id software}. URL: \url{https://raw.githubusercontent.com/id-Software/Quake-III-Arena/master/code/cgame/cg_consolecmds.c}	
+		\bibitem{JeanPaulArticle} The Quake III Arena Bot. 28 Jun 2001. \emph{J.M.P. van Waveren}. URL: \url{The Quake III Arena Bot}		
 	\end{thebibliography}
 
 
