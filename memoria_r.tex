@@ -11,9 +11,11 @@
 \usepackage{times}
 \usepackage[toc,page]{appendix}
 
+\usepackage[hidelinks]{hyperref} % Para manejar referencias cruzadas. P.ej. añadir hiperenlaces al índice
+
+
 \usepackage[strict]{changepage}
 \usepackage{framed}
-
 
 \usepackage{verbatim} % comentarios
 
@@ -82,9 +84,13 @@
 }
 
 
+
+
 \begin{document}
 	
-	\pagestyle{empty}
+
+	\pagenumbering{gobble}
+	
 	\begin{titlepage}
 		\begin{center}
 			\includegraphics[scale=0.15]{images/fic01.png} \\ 
@@ -112,11 +118,23 @@
 	\tableofcontents
 	\clearpage
 	
-	
+	\pagenumbering{arabic}
+
 	\section{Introducción}
 	Quake III Arena, a partir de ahora referido como \textbf{Q3}, es un videojuego de disparos en primera persona (\textit{FPS}) que fue lanzado en el año 1999 por \textit{id Software}. Este anticipado lanzamiento, al igual que el resto de juegos de \textit{id}, revolucionó el género de los FPS, tanto a nivel de diseño \,---\,el cual no se comentará en este documento, excepto donde sea relevante\,---\,, como a nivel de tecnologías e implementación de motor gráfico de tiempo real en el ámbito de los videojuegos. \cite{quake3}\\
 	
-	El nuevo motor desarrollado para crear Q3 fue bautizado como \textit{id tech 3}. Cuando existan referencias a Q3 en esta memoria, realmente se estará haciendo referencia a la versión de \textit{id tech 3} empleada para el desarrollo de Q3. Para desarrollos comerciales, \textit{id Software} ofreció una licencia de su nuevo motor a empresas de terceros. Una de las múltiples empresas que licenció \textit{id tech 3} fue Activision, para el desarrollo de la primera edición de \textit{Call of Duty}. La licencia del motor permitía la modificación del mismo y, a día de hoy, la familia de juegos de la franquicia de \textit{Call of Duty} todos usan una versión modificada cuya raíz es \textit{id tech 3}. \cite{idtech3}\\
+	\begin{center}
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.6\textwidth]{images/q3}
+			\caption{Quake III Arena}
+			\label{fig:portada}
+		\end{figure}
+	\end{center}
+
+	El nuevo motor desarrollado para crear Q3 fue bautizado como \textit{id tech 3}. Cuando existan referencias a Q3 en esta memoria, realmente se estará haciendo referencia a la versión de \textit{id tech 3} empleada para el desarrollo de Q3. 
+	
+	Para desarrollos comerciales, \textit{id Software} ofreció una licencia de su nuevo motor a empresas de terceros. Una de las múltiples empresas que licenció \textit{id tech 3} fue Activision, para el desarrollo de la primera edición de \textit{Call of Duty}. La licencia del motor permitía la modificación del mismo y, a día de hoy, toda la familia de juegos de la franquicia de \textit{Call of Duty} usa una versión modificada cuya raíz es \textit{id tech 3}. \cite{idtech3}\\
 	
 	Asimismo, siguiendo la filosofía de ``compartir y colaborar para avanzar la tecnología'' del programador líder John Carmack, \textit{id Software} liberó todo el código fuente de Q3 bajo la licencia GPL-2.0 \cite{sourcecode}. La liberación de este código provocó que el juego fuera portado a muchas nuevas arquitecturas y, al tener dependencias con licencias abiertas, permitió que los seguidores hicieran versiones mejoradas del juego completamente retrocompatibles con el contenido pasado, añadiendo funcionalidades nuevas y arreglando bugs conocidos. Una de estas implementaciones de software libre muy popular es \textit{ioquake3} \cite{ioquake3}. \\
 	
@@ -128,9 +146,9 @@
 	\section{Metodología de Desarrollo y Herramientas}
 	A diferencia del código principal del juego, las herramientas usadas para el desarrollo de Q3 nunca fueron liberadas. En esta época era muy habitual programar herramientas a medida para los desarrollos de tu motor (debugging, creación de mapas, importación y exportación de modelos, etc.). El juego final, al igual que sus predecesores, era muy fácil de modificar, los \textit{assets} del juego estaban claramente separados del código ejecutable y era posible cargar tus propios ficheros con modificaciones de cualquier tipo. El afán de crear este contenido hizo que aparecieran herramientas hechas por la comunidad que sustituían aquellas creadas internamente para el desarrollo, muchas de ellas son proyectos software libre de una complejidad bastante alta.\\
 	
-	\textit{id software} fue fundado por cuatro personas, y sus equipos de trabajo siempre fueron de tamaño reducido, dada la actitud vanguardista constante de la compañía las metodologías usadas no se basaban en nada existente, sino que fueron buscando sus propios principios y metodología a medida que realizaban proyectos, deshechando aquellos que no funcionaban para ellos.\\
+	\textit{id software} fue fundado por cuatro personas y sus equipos de trabajo siempre fueron de tamaño reducido, dada la actitud vanguardista constante de la compañía las metodologías usadas no se basaban en nada existente, sino que fueron buscando sus propios principios y metodología a medida que realizaban proyectos, deshechando aquellos que no funcionaban para ellos.\\
 	
-	En una charla reciente de uno de los fundadores de \textit{id software}, John Romero, se detallan los principios que fueron descubriendo e integrando en su metodología de trabajo mediante una serie de citas, incluyendo el desarrollo de Q3. La mayoría de estos principios fueron consolidados antes del desarrollo de Q3, pero todos ellos seguían siendo la guía para el desarrollo de videojuegos en el proyecto de Q3. Analizamos y comentamos las citas a continuación:\\
+	En una charla reciente de uno de los fundadores de \textit{id software}, John Romero, se detallan los principios que fueron descubriendo e integrando en su metodología de trabajo mediante una serie de citas, incluyendo el desarrollo de Q3. La mayoría de estos principios fueron consolidados antes del desarrollo de Q3, pero todos ellos seguían siendo la guía para el desarrollo de videojuegos en el proyecto de Q3. Analizamos y comentamos las citas a continuación:
 	
 	\begin{formal}
 		\textit{No prototypes. Just make the game. Polish as you go. Don't depend on polish happening later. Always mantain constantly shippable code}
@@ -140,33 +158,33 @@
 	\begin{formal}
 		\textit{ It's incredibly important that your game can always be run by your team. Bulletproof your engine by providing defaults upon load failure.}
 	\end{formal}
-	Todos los juegos clásicos de \textit{id software} se regían por este principio, configuraciones específicas nunca deberían ser obligatorias. Si uno ejecuta Q3 (O cualquier juego clásico de \textit{id}) y pulsas enter en todos los menús (y ninguna tecla más) eres puesto en una partida contra la máquina con valores por defecto, sin necesidad de configurar nada.
+	Todos los juegos clásicos de \textit{id software} se regían por este principio, configuraciones específicas nunca deberían ser obligatorias. Si uno ejecuta Q3 (o cualquier juego clásico de \textit{id}) y pulsa enter en todos los menús (y ninguna tecla más) es puesto en una partida contra la máquina con valores por defecto, sin necesidad de configurar nada.
 	
 	\begin{formal}
 		\textit{Keep your code absolutely simple. Keep looking at your functions and figure out how you can simplify further.}
 	\end{formal}
-	Uno de los principios más revolucionarios para la época (1989), refactorizar código con el objetivo de constantemente simplificar y alcanzar un rendimiento mayor, ofreciendo una experiencia superior a la ofrecida por otros equipos más conformistas.
+	Uno de los principios más revolucionarios para la época (1989), refactorizar código con el objetivo de simplificar constantemente y alcanzar un rendimiento mayor, ofreciendo una experiencia superior a la ofrecida por otros equipos más conformistas.
 	
 	\begin{formal}
 		\textit{Great tools help make great games. Spend as much time on tools as possible.}      
 	\end{formal}
-	Desde muy pronto identificaron la necesidad de que todos los usuarios implicados en el proceso de desarrollo tuvieran herramientas que facilitasen su trabajo; los creadores de niveles tenían QuakeEd, un editor de mapas muy complejo. Los artistas disponían de herramientas para facilitar el flujo de trabajo en texturas y modelos, y los desarrolladores tenían entornos de pruebas y herramientas de debugging muy avanzadas (demo playback, virtual machines).\\
-	El diseño del software se vio afectado por este principio, siempre desarrollando las tecnologías con la necesidad de poder utilizar potentes y flexibles herramientas para generar contenido o acelerar el desarrollo.
+	Desde muy pronto identificaron la necesidad de que todos los usuarios implicados en el proceso de desarrollo tuvieran herramientas que facilitasen su trabajo: los creadores de niveles tenían QuakeEd, un editor de mapas muy complejo; los artistas disponían de herramientas para facilitar el flujo de trabajo en texturas y modelos, y los desarrolladores tenían entornos de pruebas y herramientas de debugging muy avanzadas (demo playback, virtual machines).\\
+	El diseño del software se vió afectado por este principio, siempre desarrollando las tecnologías con la necesidad de poder utilizar potentes y flexibles herramientas para generar contenido o acelerar el desarrollo.
 	
 	\begin{formal}
 		\textit{We are our own best testing team and should never allow anyone else to experience bugs or see the game crash. Don't waste other's time. Test thoroughly before checking in your code.}        
 	\end{formal}
-	Aunque hoy en día existen departamentos enteros de QA, era normal que los propios desarrolladores realizasen todas las pruebas sobre sus sistemas. Aún así, podemos identificar una versión primitiva de lo que actualmente son los \textit{pull request} y revisión de código, ya que el principio animaba a los desarrolladores a sólo entregar versiones bien probadas para integrar con el resto del equipo.
+	Aunque hoy en día existen departamentos enteros de QA, era normal que los propios desarrolladores realizasen todas las pruebas sobre sus sistemas. Aún así, se puede identificar una versión primitiva de lo que actualmente son los \textit{pull request} y revisión de código, ya que el principio animaba a los desarrolladores a sólo entregar versiones bien probadas para integrar con el resto del equipo.
 	
 	\begin{formal}
 		\textit{As soon as you see a bug, you fix it. Do not continue on. If you don't fix your bugs your new code will be built on a buggy codebase and ensure an unstable foundation.}        
 	\end{formal}
-	Una extensión del anterior principio, nunca entregar código en el que somos conscientes que hay errores, ya que estos pueden confundirse por decisiones de diseño deliberadas, y acumular errores en el diseño general.
+	Una extensión del anterior principio: nunca entregar código en el que se es consciente de que hay errores, ya que estos pueden confundirse por decisiones de diseño deliberadas, y acumular errores en el diseño general.
 	
 	\begin{formal}
 		\textit{Use a development system that is superior to your target.}       
 	\end{formal}
-	En 1993, durante el desarrollo de Doom, se decidió utilizar equipos de trabajo distintos a los equipos de prueba. Esto es una práctica muy común a día de hoy, pero en su momento era normal desarrollar con sistemas con la misma potencia disponible por los consumidores del software. Dar el salto a sistemas más potentes permitió acelerar los procesos de desarrollo y programar herramientas más ambiciosas.
+	En 1993, durante el desarrollo de \textit{Doom}, se decidió utilizar equipos de trabajo distintos a los equipos de prueba. Esto es una práctica muy común a día de hoy, pero en su momento era normal desarrollar con sistemas con la misma potencia disponible por los consumidores del software. Dar el salto a sistemas más potentes permitió acelerar los procesos de desarrollo y programar herramientas más ambiciosas.
 	
 	\begin{formal}
 		\textit{Write your code for this game only - not for a future game. You're going to be writing new code later because you'll be smarter.}        
@@ -176,19 +194,19 @@
 	\begin{formal}
 		\textit{Try to code transparently. Tell your lead and peers exactly how you are going to solve your current task and get feedback and advice. Do not treat game programming like each coder is a black box. The project could go off the rails and cause delays.}        
 	\end{formal}
-	Desde el principio en \textit{id software} se trabajó con un ambiente colaborativo, muy distinto al habitual paradigma de tener desarrolladores completamente independientes trabajando solos en proyectos completos. Saber en qué punto del proyecto están tus compañeros ayuda a identificar bloqueos y problemas mucho antes de la fecha límite.\\
+	Desde el principio en \textit{id software} se trabajó con un ambiente colaborativo, muy distinto al habitual paradigma de tener desarrolladores completamente independientes trabajando solos en proyectos completos. Saber en qué punto del proyecto están los compañeros ayuda a identificar bloqueos y problemas mucho antes de la fecha límite.\\
 	
 	\begin{formal}
 		\textit{Programming is a creative art form based in logic. Every programmer is different and will code differently. It's the output that matters.}
 	\end{formal}
-	Soportar diferentes estilos de programación sólo funciona en equipos muy reducidos como este caso, pero es un principio poco recomendable cuando un proyecto tiene una duración más larga o un equipo más grande. \\
+	Soportar diferentes estilos de programación sólo funciona en equipos muy reducidos, como este caso, pero es un principio poco recomendable cuando un proyecto tiene una duración más larga o un equipo más grande. \\
 	\\
-	En definitiva, podemos concluir que la metodología utilizada era una versión primitiva, casera e improvisada de Extreme Programming, muchos de los fundamentales aspectos de XP se ven reflejados en la filosofía de \textit{id software}. Probablemente podrían haber integrado con facilidad algunas técnicas modernas como programación por parejas y revisiones de código, así como control de versiones, con el fin de mejorar sus procesos de desarrollo.
+	En definitiva, se puede concluir que la metodología utilizada era una versión primitiva, casera e improvisada de \textit{Extreme Programming}. Muchos de los fundamentales aspectos de XP se ven reflejados en la filosofía de \textit{id software}. Probablemente podrían haber integrado con facilidad algunas técnicas modernas como programación por parejas y revisiones de código, así como control de versiones, con el fin de mejorar sus procesos de desarrollo.
 	
 	
 	\section{Arquitectura de Software: Patrones y Antipatrones}
 
-	La gran mayoría de aplicaciones están basadas en sistemas 2D que sólo requieren actualizar partes de la vista en cada momento. Cuando nos referimos a aplicaciones 3D, estas arquitecturas clásicas no son compatibles ya que, para dar sensación de fluidez y continuidad, el software debe generar una serie de frames cada segundo de manera constante. Incluso cuando el software no está haciendo ningún input, se produce el output de los frames. \\
+	La gran mayoría de aplicaciones están basadas en sistemas 2D que sólo requieren actualizar partes de la vista en cada momento. Cuando se hace referencia a aplicaciones 3D, estas arquitecturas clásicas no son compatibles ya que, para dar sensación de fluidez y continuidad, el software debe generar una serie de frames cada segundo de manera constante. Incluso cuando el software no está haciendo ningún input, se produce el output de los frames. \\
 	
 	La arquitectura común de todos los aplicativos 3D es el render-loop:
 	
@@ -254,7 +272,7 @@ void main() // Pong
 	
 	\begin{itemize}
 		\item \textbf{\textit{Callback-Driven frameworks}}. La mayoría de los subsistemas de motores y de paquetes middleware de videojuegos están estructurados como librerías. Para la implementación del game-loop se usan las llamadas a esos subsistemas a partir de sus API's para agilizar la lógica de cada subsistema en cada iteración. Por ejemplo: si se estuviera implementando el juego de \textit{Flappy bird} utilizando este estilo, una iteración del bucle podía parecerse a algo similar a:
-		
+		\newpage
 		\begin{lstlisting}[style=C, numbers=none]
 void main() // Flappy Bird
 {
@@ -286,6 +304,8 @@ void main() // Flappy Bird
 		
 		Si en el futuro el programador decidiera programar este juego para iOS, este código tendría que adaptar las llamadas de API a las librerías disponibles en iOS, quizá utilizando el \textit{\textbf{patrón adaptador}} para evitar cambiar la lógica principal y los tipos de datos de su sistema.\\
 		
+		\newpage
+		
 		\item \textit{\textbf{Event-Based Updating}}. En este estilo de implementación todos los subsistemas son capaces de enviar y recibir eventos. Estos eventos son similares a los que se usan en los patrones de interfaces gráficas como MVC. 
 		
 		En el game-loop se han de procesar todos los eventos recibidos en la anterior iteración y distribuirlos a los subsistemas pertinentes para que los procesen. Además, también se debe de encargar de notificar a los subsistemas de en qué instante se encuentra la ejecución del programa. Los eventos recibidos no siempre tienen por qué ser procesados inmediatamente, por lo que cada subsistema debe de tener capacidad para almacenar eventos y en base a la información del bucle principal, ser consciente del instante en el que ha de procesar cada uno de los eventos. 
@@ -306,7 +326,8 @@ void main() // Flappy Bird
 			\label{figarchitectureblackbox}
 		\end{figure}
 	\end{center}
-
+ 
+ \newpage
 	Dentro del sistema se identifican 6 módulos: aplicación principal y lógica de juego (\textit{quake3.exe}), rendering (\textit{renderer.lib}), IA (\textit{bot.lib}), lógica servidora (\textit{game}), lógica cliente (\textit{cgame}) e interfaz de usuario (\textit{q3\_ui}), representados en la Figura \ref{figarchitecture}
 
 		\begin{center}
@@ -317,13 +338,15 @@ void main() // Flappy Bird
 			\end{figure}
 		\end{center}
 	
+	\newpage
+	
 	En esta arquitectura se destacan dos decisiones de diseño muy importantes:
 	
 	\subsubsection{Bitácora de inputs para facilitar las pruebas}
 	
-	Cada uno de los inputs recibidos (Teclado, mensaje win32, ratón, socket UDP) es convertido a \textit{event\_t} y encolado en una cola de eventos (\textit{sysEvent\_t eventQue[256]}). Con esta aproximación se puede mantener una bitácora de estos inputs que, junto con otros factores también almacenados, permiten ser reproducidos en orden para recrear bugs de manera consistente. \cite{johncplan}\\
+	Cada uno de los inputs recibidos (teclado, mensaje win32, ratón, socket UDP) es convertido a \textit{event\_t} y encolado en una cola de eventos (\textit{sysEvent\_t eventQue[256]}). Con esta aproximación se puede mantener una bitácora de estos inputs que, junto con otros factores también almacenados, permiten ser reproducidos en orden para recrear bugs de manera consistente. \cite{johncplan}\\
     
-    Este diseño de arquitectura, basada en inputs de diferentes fuentes normalizados a eventos de sistema, se define formalmente como un patrón reactor, que es un patrón arquitectural para resolver el problema de como atender peticiones concurrentes a través de señales y manejadores de señales.\\
+    Este diseño de arquitectura, basada en inputs de diferentes fuentes normalizados a eventos de sistema, se define formalmente como un \textbf{patrón reactor}, que es un patrón arquitectural para resolver el problema de cómo atender peticiones concurrentes a través de señales y manejadores de señales.\\
 	
 	En la figura \ref{figarchitecture} se identifican dentro de la parte \textit{Common} el administrador de inputs, la cola de eventos y el \textit{event journal} mencionado.
 	
@@ -334,6 +357,8 @@ void main() // Flappy Bird
 	En Q3 el servidor es el responsable de mantener el estado de la partida, determinar información de la partida necesitan los clientes y propagarla por la red. Se puede observar en la imagen que \textit{bot.lib} está contenido únicamente dentro de la parte servidora, ya que es también la encargada de proveer la lógica e inputs de los jugadores controlados por la IA.\\
 	
 	El cliente es responsable de predecir dónde están los objetos en cada instante, incluyendo los elementos afectados por la red utilizando una técnica llamada \textit{lag compensation}, y de renderizar la vista para el usuario \,---\, De nuevo, en la figura  \ref{figarchitecture} se puede observar como \textit{renderer.lib} está contenido en la parte cliente. \cite{architecture}\\
+	
+	\newpage
 	
 	\subsubsection{Eventos desde el punto de vista del código}
 	
@@ -395,7 +420,9 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 
     En este código se puede observar la potencia del patrón basado en máquinas virtuales, que permite obviar las llamadas de renderizado en el bucle principal del juego. Lo único que necesita hacer este bucle es enviar un mensaje (evento) a la máquina virtual del cliente (\textit{CG\_DRAW\_ACTIVE\_FRAME}) indicándole que es necesario realizar un refresco (cargar el siguiente fotograma).\\
     
-    Esta máquina virtual realiza los trabajos de culling y predicción antes de llamar a las librerías de OpenGL usando una llamada del sistema Q3 (\textit{CG\_R\_RENDERSCENE}). Cuando Quake.exe recibe esta llamada es cuándo realmente se llama a la función de renderizado de la escena (\textit{RE\_RenderScene}).\cite{unrolled_loop_source}\cite{unrolled_loop}\\   
+    Esta máquina virtual realiza los trabajos de culling y predicción antes de llamar a las librerías de OpenGL usando una llamada del sistema Q3 (\textit{CG\_R \_RENDERSCENE}). Cuando Quake.exe recibe esta llamada es cuándo realmente se llama a la función de renderizado de la escena (\textit{RE\_RenderScene}).\cite{unrolled_loop_source}\cite{unrolled_loop}\\   
+    
+    \newpage
     
     \begin{center}
     	\begin{figure}[h]
@@ -407,17 +434,15 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
     
     En la figura \ref{figdiagrama} se puede visualizar esta explicación. En lugar de tener todas las llamadas acopladas y dependientes del mismo ciclo de vida, se aprovecha la arquitectura de mensajes para que cada componente realice su trabajo cuando esté listo para procesarlo. Además, esto implica que Quake3.exe no tiene necesidad de saber qué trabajos va a realizar la \textit{Client Virtual Machine} antes de lanzar el mensaje para hacer el render de la escena.\\
 
-    Dentro del diseño de la arquitectura de Q3 encontramos un claro ejemplo de antipatrón arquitectural:
+    Dentro del diseño de la arquitectura de Q3 se encuentra un claro ejemplo de antipatrón arquitectural:
     
     \subsection{Vendor Lock-in}
     
     Se trata de un antipatrón de arquitectura, en el que parte de la arquitectura del sistema depende completamente de librerías externas que podrían causar problemas durante el mantenimiento del código en futuras iteraciones, introducir fallos sobre los que no se tiene control y limitar la portabilidad del software.\\
-    
+    \newpage
     Para el renderizado de los graficos en este sistema se ha utilizado OpenGL y, a pesar de que no está acoplado con el código, el motor depende de la existencia de la librería. En el caso de que un sistema no tenga soporte para OpenGL, habría que portar toda la capa de integración al correspondiente sistema de renderizado.  \\
   
 	
-	
-	\newpage
 	\section{Diseño de Software}
 	
 	El software de Quake III Arena está considerado un buen ejemplo de programación estructurada, que gira en torno a una adecuada definición de funciones y a un equilibrio respecto a la complejidad de las mismas. En la versión que se está analizando en esta memoria, se puede observar que el código está bien diseñado y estructurado, pudiendo tener una visión global de su estructura.\\
@@ -426,7 +451,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	
     \subsection{Memento Pattern: Arquitectura de Red basada en Snapshots}
 	Para coordinar los estados de la partida en el servidor, con el fin de sincronizar todos los clientes y generar estados consistentes basándose en la interacción de los mismos, Q3 utiliza una implementación del \textit{patrón memento}.\\
-	
+	\newpage
 	\begin{center}
 		\begin{figure}[h]
 			\includegraphics[width=1\textwidth]{images/q3_network_arch}
@@ -472,7 +497,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 		\end{figure}
 	\end{center}
 
-	Un ejemplo concreto de esto podemos observarlo en el \textit{main} del código servidor:
+	Un ejemplo concreto de esto se puede observar en el \textit{main} del código servidor:
 	
 		\begin{lstlisting}[style=C, numbers=none]
 // run the game simulation in chunks
@@ -486,8 +511,7 @@ while ( sv.timeResidual >= frameMsec )
 }
 	\end{lstlisting}
 	
-	Tras realizar sus tareas previas, el servidor pasa el control a \textit{game} mediante una llamada a su VM, pasándole el parámetro \textit{GAME\_RUN\_FRAME} que indica al módulo \textit{game} que tiene que hacer los cálculos necesarios para procesar el siguiente frame basándose en la referencia de tiempo. El código del servidor está completamente abstraído de los cálculos para generar el siguiente frame.\\
-	 \cite{q3vmcallex}
+	Tras realizar sus tareas previas, el servidor pasa el control a \textit{game} mediante una llamada a su VM, pasándole el parámetro \textit{GAME\_RUN\_FRAME} que indica al módulo \textit{game} que tiene que hacer los cálculos necesarios para procesar el siguiente frame basándose en la referencia de tiempo. El código del servidor está completamente abstraído de los cálculos para generar el siguiente frame.\cite{q3vmcallex}\\
 
 	Para la comunicación en el sentido opuesto, la Q3VM utiliza llamadas del sistema para comunicarse con Quake3. Estas llamadas del sistema están definidas en los ficheros cabecera del \textit{Client VM}\cite{q3vmclient} y \textit{Server VM}\cite{q3vmserver}\\
 	
@@ -497,8 +521,8 @@ while ( sv.timeResidual >= frameMsec )
 	
 		\subsection{Interpreter pattern: Quake Console}
 	Una de las herramientas más potentes integradas en Q3 es la consola del desarrollador. Con ella el usuario puede introducir comandos para afectar a variables internas y configuraciones. Todas las operaciones de menús tienen un equivalente accesible por la consola, aunque su utilidad se extiende más allá, permitiendo incluso ser utilizada para mostrar mensajes informativos al usuario durante la partida de manera dinámica y estándar.\\
-	
-	Para conseguir esto se hace uso de un patrón interpreter para procesar el comando y sus parámetros, y convertirlos en las instrucciones a ejecutar para modificar las propiedades del motor pertinentes.\cite{console_source}\cite{consolecmd_source}\\
+	\newpage
+	Para conseguir esto se hace uso de un \textbf{patrón interpreter} para procesar el comando y sus parámetros, y convertirlos en las instrucciones a ejecutar para modificar las propiedades del motor pertinentes.\cite{console_source}\cite{consolecmd_source}\\
 	
 	Cuando el cliente escribe un comando en su consola local se ejecuta en \textit{cgame} la llamada para el intérprete de comandos utilizando una llamada del sistema (Q3VM -> Q3):\\
 	
@@ -517,7 +541,7 @@ void CG_TargetCommand_f( void ) {
 }
 	\end{lstlisting}
 	
-A pesar de que es un código que llama la atención por su buena estructura en comparación con otros videojuegos implementados en su época, también se puede hallar algunos antipatrones arquitecturales (comentados en secciones anteriores) como algunos de diseño:\\
+A pesar de que es un código que llama la atención por su buena estructura en comparación con otros videojuegos implementados en su época, también se puede hallar tanto algunos antipatrones arquitecturales (comentados en secciones anteriores) como algunos de diseño:\\
 
 \subsection{The blob}
 
@@ -527,7 +551,7 @@ El código de Q3 está separado en unidades funcionales, de manera que se evita 
 
 Una excepción a estas buenas prácticas se puede ver en la parte de IA. Durante el desarrollo de Q3, el programador líder de \textit{id Software} delegó la tarea de desarrollar los \textit{bots} a un desarrollador de la compañía, que no consiguió entregar un trabajo finalizado. Los \textit{bots} no tenían el comportamiento esperado, si no que eran muy predecibles y con movimientos antinaturales. \\
 
-En un juego basado en partidas multijugador, esto era una parte importante. Para solucionar este bloqueo, \textit{id Software} decidió dejar este trabajo en manos de Jean-Paul van Waveren (a.k.a Mr.Elusive), que integró toda la librería de \textit{bots} en un sistema completamente separado y cerrado que se decidió colocar dentro de la arquitectura en la parte de servidor, pero fuera de la VM, como se ve señalado en la figura \ref{fig:bot}
+En un juego basado en partidas multijugador, esto era una parte importante. Para solucionar este bloqueo, \textit{id Software} decidió dejar este trabajo en manos de Jean-Paul van Waveren (a.k.a Mr.Elusive), que integró toda la librería de \textit{bots} en un sistema completamente separado y cerrado que se decidió colocar dentro de la arquitectura en la parte de servidor, pero fuera de la VM, como se ve señalado en la figura \ref{fig:bot}.
 Para comunicarse con el juego (VM) se usaron \textit{syscalls}. Esto es un claro ejemplo del antipatrón de \textit{The blob}, ya que toda esta lógica debería de estar integrada y repartida dentro las unidades funcionales del código de la VM.
 
 	\begin{center}
@@ -544,7 +568,7 @@ A pesar de ser un antipatrón, el código está muy bien desarrollado dentro de 
 
 Para el desarrollo de Q3 se decidió utilizar el lenguaje C, como en todos los títulos anteriores desarrollados en \textit{id software}, lo cual presentó multiples retos durante el complejo desarrollo del mismo. Muchos de estos problemas podrían haberse solucionado con abastracciones más potentes halladas en otros lenguajes disponibles en ese momento, como C++.\\
 
-El antipatrón \textit{Golden Hammer} en este caso, sería el uso de C sin haber previamente analizado otros candidatos debido a la gran predisposición del equipo de desarrollo a utilizar este lenguaje.\\
+El antipatrón \textit{\textbf{Golden Hammer}} en este caso, sería el uso de C sin haber previamente analizado otros candidatos debido a la gran predisposición del equipo de desarrollo a utilizar este lenguaje.\\
 
 	
 	\section{Calidad del Software}
@@ -559,7 +583,7 @@ El antipatrón \textit{Golden Hammer} en este caso, sería el uso de C sin haber
     
     Si bien se pueden encontrar aspectos, principios y normas de accesibilidad implementadas en Q3, como la navegación por teclado, ninguna de ellas fue diseñada con el objetivo de accesibilidad en la mente, sino que casualmente se implementaron de una manera que favorece la accesibilidad en un esfuerzo general para mejorar la experiencia de uso de todos los usuarios.\\
     
-    Q3 es un videojuego de disparos en primera persona, este tipo de juegos tradicionalmente excluyen completamente a todos los usuarios con problemas graves de visión, no habiendo una solución universal para mejorar su accesibilidad. Respecto a otros tipos de DISCAPACIDADES(INTRODUCIR EUFEMISMO) como auditiva, motriz o intelectual, no impiden el uso del software, pero afectan al usuario limitándo ciertos aspectos del juego.\\
+    Q3 es un videojuego de disparos en primera persona, este tipo de juegos tradicionalmente excluyen completamente a todos los usuarios con problemas graves de visión, no habiendo una solución universal para mejorar su accesibilidad. Respecto a otros tipos de incapacidades como auditiva, motriz o intelectual, no impiden el uso del software, pero afectan al usuario limitándo ciertos aspectos del juego.\\
     
     En el apartado siguiente se comentarán una serie de modificaciones posibles para mejorar la experiencia de estos usuarios.
     
@@ -570,26 +594,41 @@ El antipatrón \textit{Golden Hammer} en este caso, sería el uso de C sin haber
     A lo largo de la memoria ya se hicieron comentarios, conclusiones y propuestas acerca de las decisiones de diseño halladas en Q3, aún así, se comentarán detalles de los puntos más discutibles en este apartado.\\
     
     En general el desarrollo de Q3 cumple el objetivo del proyecto: Entregar un juego finalizado listo para ser distribuído sin fallos graves. Para alcanzar este objetivo se tomaron ciertos atajos en el diseño y en la arquitectura pero, desde el punto de vista del desarrollo ágil, podríamos no considerarlos problemas, sino decisiones de diseño para el presente. En el caso de los desarrolladores líderes, han demostrado gran capacidad para refactorizar y extender sus módulos sin ningún problema, rehaciendo la arquitectura del motor desde cero por tercera vez en este título.\\
-    
+
+	\newpage    
     La motivación principal para desarrollar este motor de esta manera es la seguridad de que cuando necesiten avanzar la tecnología será un salto cuantitativo que requerirá reescribir la arquitectura entera, en este caso fue así, y la tecnología \textit{id tech 3} sólo fue utilizada en este título comercial por parte de \textit{id software.}
     
     No hubiera sido viable realizar el desarrollo de una API de rendering propia para mitigar los efectos del antipatrón \textit{vendor lock-in}, sin embargo, se podría haber considerado implementar las APIs de Microsoft (Direct X) además del elegido OpenGL. Para esto, se podría haber utilizado un patrón \textit{facade} para abastraer la librería de rendering de las llamadas de bajo nivel que habría que realizar a las distintas APIs (Actualmente, además de OpenGL y Direct X, habría que considerar Vulkan).\\
     
-    Como comentamos en su apartado, la inclusión un \textit{blob} para realizar las tareas de IA fue fruto del fracaso al alcancar el hito de entrega en el proyecto y por eso se introdujo esta librería de manera distinta a la originalmente pensada y adecuada, que, suponemos que sería su inclusión dentro del módulo \textit{game}, en el código de las virtual machine del servidor.\\
+    Como se comentó en su correspondiente apartado, la inclusión un \textit{blob} para realizar las tareas de IA fue fruto del fracaso al alcancar el hito de entrega en el proyecto y por eso se introdujo esta librería de manera distinta a la originalmente pensada y adecuada, que, se supone, sería su inclusión dentro del módulo \textit{game}, en el código de las virtual machines del servidor.\\
     
-    Aún así, otra solución posible para la integración de IA, utilizada en otros videojuegos, es el considerar a los jugadores de la máquina como jugadores reales y comunicar sus acciones via las mismas llamadas que realizan los jugadores reales. Es decir, añadir un nuevo input virtual para que la IA pueda controlar a sus personajes y recibir información del estado de la partida a través de los output estándar.\\
+    Aún así, otra solución posible para la integración de IA, utilizada en otros videojuegos, es el considerar a los jugadores de la máquina como jugadores reales y comunicar sus acciones vía las mismas llamadas que realizan los jugadores reales. Es decir, añadir un nuevo input virtual para que la IA pueda controlar a sus personajes y recibir información del estado de la partida a través de los output estándar.\\
     
     Respecto al antipatrón \textit{The Golden Hammer} uno de los argumentos que dieron los programadores a posteriori para elegir C sobre C++ fue la eficiencia de C sobre el overhead introducido por C++. No obstante, este argumento no es suficiente para justificar no utilizar un lenguaje orientado a objetos, que se convirtió en el estandar defacto en toda la industria en los años siguientes gracias a sus potentes abstracciones.\\
     
     
     \subsection{Accesibilidad}
-    Como propuesta de mejora para la accesibilidad, existen algunas features que se podrían haber incluído: paletas de colores para jugadores con daltonismo que no sean capaces de diferenciar los diferentes actores de la partida,  ajustes de brillo y contraste extremos para usuarios con deficiencias visuales graves. \\
-    
-    Para otros problemas de accesibilidad no relacionados con la visión, se podrían considerar implementar: indicadores visuales y subtítulos para usuarios con problemas auditivos, que comuniquen los sonidos no representados en pantalla. Configuración personalizada de métodos de input y remapping de controles para los jugadores con movilidad reducida (Por ejemplo, poder integrar todos los controles en un sólo brazo). Para las dificultades relacionadas con accesibilidad intelectual, los diseñadores del software pueden incluir tutoriales sobre las mecánicas del juego y modos de asistencia para el jugador (Por ejemplo, para un niño pequeño, ayudarle a apuntar con el ratón, ya que es una habilidad que requiere coordinación oculo-manual muy desarrollada). %CONVERTIR A ITEMIZE
-    
+    Como propuesta de mejora para la accesibilidad, existen algunas features que se podrían haber incluído:
+    \begin{itemize}
+    	\item Paletas de colores para jugadores con daltonismo que no sean capaces de diferenciar los diferentes actores de la partida.
+    	\item Ajustes de brillo y contraste extremos para usuarios con deficiencias visuales graves.
+    	\item  Para otros problemas de accesibilidad no relacionados con la visión, se podrían considerar implementar:
+    	\begin{itemize}
+    		\item Indicadores visuales y subtítulos para usuarios con problemas auditivos, que comuniquen los sonidos no representados en pantalla.
+    		\item Configuración personalizada de métodos de input y remapping de controles para los jugadores con movilidad reducida (Por ejemplo, poder integrar todos los controles en un sólo brazo).
+    		\item 	Para las dificultades relacionadas con accesibilidad intelectual, los diseñadores del software pueden incluir tutoriales sobre las mecánicas del juego y modos de asistencia para el jugador (Por ejemplo, para un niño pequeño, ayudarle a apuntar con el ratón, ya que es una habilidad que requiere coordinación oculo-manual muy desarrollada).
+    	\end{itemize}
+    \end{itemize}
+
     \subsection{Conclusión}
-    %HACER UNA CONCLUSION QUE TE SALGA DEL CORAZÓN
-    
+	Quake III Arena es un software completo con una estructura y unas prácticas bastante adelantadas en relación con lo existente en aquel entonces.
+	
+	Aunque se haya comentado a lo largo de la memoria la existencia de una serie de antipatrones, ésto no implica que no sea un software de calidad. El simple hecho de que se haya desarrollado siguiendo una serie de prácticas y buenos mecanismos que llevan a pensar en la actual \textit{Extreme Programming}, hace que el sistema pueda garantizar una cierta calidad de proyecto.\\
+	
+	Aunque cada desarrollador se encargaba de realizar las pruebas durante el mismo proceso de desarrollo del sistema, se podría hablar de una mejora de la calidad mediante la agregación de algún tipo de métricas, como podrían ser las de tiempo y espacio.\\
+	
+	En conclusión, Quake III Arena es un software con buena estructura, preparado para ser modificado o mejorado por cualquier usuario. Además, aparte de ser un proyecto opensource, está accesible facilmente para todos los usuarios que lo deseen, por lo que existe un número elevado de contribuyentes al proyecto.
+	
     
 	
 	\begin{thebibliography}{9}
